@@ -15,7 +15,6 @@ while True:
         user_number = int(input("Enter your number:"))
         people_add(user_name, user_age, user_gender, user_number)
     elif user_input == 2:
-        #del_name = input("请输入想删除的：")
         print("请输入删除的选择：1.name 2.age 3.gender 4.number")
         del_input = int(input("输入数字选择功能："))
         if del_input == 1:

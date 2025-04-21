@@ -1,10 +1,11 @@
 import mysql.connector
+from People import People
 
 mydb = mysql.connector.connect(
     host="127.0.0.1"
     ,user="root"
-    ,password="********"
-    ,database="********"
+    ,password="****"
+    ,database="****"
 )
 print(mydb,"数据库连接成功!")
 
@@ -17,10 +18,14 @@ print("表 'people' 检查/创建 完成.")
 
 def people_add(name, age, gender, number):
     try:
+        person = People(name, age, gender, number)# 创建People对象进行验证
         peopleAdd_cursor = mydb.cursor()
-        peopleAdd_cursor.execute("INSERT INTO people(name,age,gender,number) values(%s,%s,%s,%s)",(name, age, gender, number))# 执行sql语句
+        #peopleAdd_cursor.execute("INSERT INTO people(name,age,gender,number) values(%s,%s,%s,%s)",(name, age, gender, number))# 执行sql语句
+        peopleAdd_cursor.execute("INSERT INTO people (name, age, gender, number) values(%s,%s,%s,%s)",
+                                 (person.name, person.age, person.gender, person.number))
         mydb.commit()# 提交到数据库执行
-        print(f"{peopleAdd_cursor.rowcount} 条记录插入成功: Name={name}")
+        #print(f"{peopleAdd_cursor.rowcount} 条记录插入成功: Name={name}")
+        print(f"{peopleAdd_cursor.rowcount} 条记录插入成功: {person}")#print(person) 调用 __str__()
         peopleAdd_cursor.close()
         return True
     except mysql.connector.Error as error:
