@@ -4,8 +4,8 @@ from People import People
 mydb = mysql.connector.connect(
     host="127.0.0.1"
     ,user="root"
-    ,password="****"
-    ,database="****"
+    ,password="*"
+    ,database="*"
 )
 print(mydb,"数据库连接成功!")
 
@@ -21,8 +21,7 @@ def people_add(name, age, gender, number):
         person = People(name, age, gender, number)# 创建People对象进行验证
         peopleAdd_cursor = mydb.cursor()
         #peopleAdd_cursor.execute("INSERT INTO people(name,age,gender,number) values(%s,%s,%s,%s)",(name, age, gender, number))# 执行sql语句
-        peopleAdd_cursor.execute("INSERT INTO people (name, age, gender, number) values(%s,%s,%s,%s)",
-                                 (person.name, person.age, person.gender, person.number))
+        peopleAdd_cursor.execute("INSERT INTO people (name, age, gender, number) values(%s,%s,%s,%s)",(person.name, person.age, person.gender, person.number))
         mydb.commit()# 提交到数据库执行
         #print(f"{peopleAdd_cursor.rowcount} 条记录插入成功: Name={name}")
         print(f"{peopleAdd_cursor.rowcount} 条记录插入成功: {person}")#print(person) 调用 __str__()
@@ -36,10 +35,12 @@ def people_delete(field_type , value):
     people_delete_cursor = mydb.cursor()
     people_delete_cursor.execute(f"SELECT * FROM people where {field_type} = %s",(value,))
     for row in people_delete_cursor.fetchall():
-        print(f"ID={row[0]},Name={row[1]},age={row[2]},gender={row[3]},number={row[4]}")
-    del_input =input("请再次确认是否删除 y/n：")
+        print(f"找到了：ID={row[0]},Name={row[1]},age={row[2]},gender={row[3]},number={row[4]}")
+    del_input =input("请确认是否删除 y/n：")
     if del_input=="y":
         people_delete_cursor.execute(f"DELETE FROM people where {field_type} = %s",(value,))
+        print(f"已删除{people_delete_cursor.rowcount}条记录：Name为{row[1]}的条例")
+        mydb.commit()
     elif del_input=="n":
         print("取消删除成功")
     people_delete_cursor.close()
