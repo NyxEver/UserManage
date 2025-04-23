@@ -4,8 +4,8 @@ from People import People
 mydb = mysql.connector.connect(
     host="127.0.0.1"
     ,user="root"
-    ,password="*"
-    ,database="*"
+    ,password="2397947891"
+    ,database="student_db"
 )
 print(mydb,"数据库连接成功!")
 
@@ -40,19 +40,27 @@ def people_delete(field_type , value):
     if del_input=="y":
         people_delete_cursor.execute(f"DELETE FROM people where {field_type} = %s",(value,))
         print(f"已删除{people_delete_cursor.rowcount}条记录：Name为{row[1]}的条例")
-        mydb.commit()
     elif del_input=="n":
         print("取消删除成功")
+    mydb.commit()
     people_delete_cursor.close()
 
 def people_change(field_type , value_1 ,value_2):
-    people_change_cursor = mydb.cursor()
-    people_change_cursor.execute(f"UPDATE people SET {field_type} = %s where {field_type} = %s",(value_2,value_1,))
-    mydb.commit()
-    for row in people_change_cursor.fetchall():
-        print(f"ID={row[0]},Name={row[1]},age={row[2]},gender={row[3]},number={row[4]}")
-    print("修改成功")
-    people_change_cursor.close()
+    try:
+        if field_type == 'name':
+            test_person=People(value_2,'20','M','202020')
+        elif field_type == 'age':
+            test_person=People('a',int(value_2),'M','202020')
+        people_change_cursor = mydb.cursor()
+        people_change_cursor.execute(f"UPDATE people SET {field_type} = %s where {field_type} = %s", (value_2, value_1,))
+        for row in people_change_cursor.fetchall():
+            print(f"ID={row[0]},Name={row[1]},age={row[2]},gender={row[3]},number={row[4]}")
+        print("修改成功")
+        mydb.commit()
+        people_change_cursor.close()
+    except ValueError as error:
+        print(f"修改后的数据验证失败: {error}")
+        return False
 
 def peopleName_find(name):
     people_name_cursor = mydb.cursor()

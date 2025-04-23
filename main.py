@@ -20,21 +20,28 @@ while True:
             print(f"输入错误：{value_error}")
     elif user_input == 2:
         #print("请输入删除的选择：1.name 2.age 3.number")
-        key_input = int(input("请输入删除的选择——1.name 2.age 3.number："))
-        key = {1:('name',"想要删除的名字："),2:('age',"想要删除的年龄："),3:('number',"想要删除的号码：")}#字典、元组嵌套
-        if key_input in key:
-            field_type, field_value = key[key_input]
-            value=input(field_value)
-            people_delete(field_type, value)
+        key_del_input = int(input("请输入删除的选择——1.name 2.age 3.number："))
+        key_del = {1:('name',"想要删除的名字："),2:('age',"想要删除的年龄："),3:('number',"想要删除的号码：")}#字典、元组嵌套
+        if key_del_input in key_del:
+            del_type, del_value = key_del[key_del_input]
+            value=input(del_value)
+            people_delete(del_type, value)
         else:
             print("请重新输入")
     elif user_input == 3:
-        print("请输入修改的选择：1.name 2.age 3.gender 4.number")
-        change_input = int(input("输入数字选择功能："))
-        if change_input == 1:
-            change_name1 = input("请输入想修改的：")
-            change_name2 = input("请输入修改后的名称：")
-            people_change("name", change_name1, change_name2)
+        #print("请输入修改的选择：1.name 2.age 3.gender 4.number")
+        #change_input = int(input("输入数字选择功能："))
+        #people_change("name", change_name1, change_name2)
+        key_change_input = int(input("请输入修改的选择——1.name 2.age 3.number："))
+        key_change = {1: ('name', "想要修改的名字：","修改后的名字："), 2: ('age', "想要修改的年龄：","修改后的年龄："),
+                3: ('number', "想要修改的号码：","修改后的号码：")}  # 字典、元组嵌套
+        if key_change_input in key_change:
+            change_type, change_value1,change_value2 = key_change[key_change_input]
+            value1 = input(change_value1)
+            value2 = input(change_value2)
+            people_change(change_type, value1,value2)
+        else:
+            print("请重新输入")
     elif user_input == 4:
         print("请输入查找的选择：1.name 2.age 3.gender 4.number")
         find_input = int(input("输入数字选择功能："))
