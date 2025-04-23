@@ -4,8 +4,8 @@ from People import People
 mydb = mysql.connector.connect(
     host="127.0.0.1"
     ,user="root"
-    ,password="2397947891"
-    ,database="student_db"
+    ,password="*"
+    ,database="*"
 )
 print(mydb,"数据库连接成功!")
 
