@@ -59,36 +59,13 @@ def people_change(field_type , value_1 ,value_2):#修改方法，传入三个参
     return True
     people_change_cursor.close()
 
-def peopleName_find(name):#寻找方法：名字
-    people_name_cursor = mydb.cursor()
-    people_name_cursor.execute("SELECT * FROM people where name=%s",(name,))
-    for row in people_name_cursor.fetchall():
+def people_find(field_type , value_1):
+    #name, age, gender, number
+    people_find_cursor = mydb.cursor()
+    people_find_cursor.execute(f"SELECT * FROM people where {field_type} = %s",(value_1))
+    for row in people_find_cursor.fetchall():
         print(f"ID={row[0]},Name={row[1]},age={row[2]},gender={row[3]},number={row[4]}")
-    people_name_cursor.close()
-    return True
-
-def peopleAge_find(age):#寻找方法：年龄
-    people_age_cursor = mydb.cursor()
-    people_age_cursor.execute("SELECT * FROM people where age=%s",(age,))
-    for row in people_age_cursor.fetchall():
-        print(f"ID={row[0]},Name={row[1]},age={row[2]},gender={row[3]},number={row[4]}")
-    people_age_cursor.close()
-    return True
-
-def peopleGender_find(gender):#寻找方法：性别
-    people_gender_cursor = mydb.cursor()
-    people_gender_cursor.execute("SELECT * FROM people where gender=%s",(gender,))
-    for row in people_gender_cursor.fetchall():
-        print(f"ID={row[0]},Name={row[1]},age={row[2]},gender={row[3]},number={row[4]}")
-    people_gender_cursor.close()
-    return True
-
-def peopleNumber_find(number):#寻找方法：号码
-    people_number_cursor = mydb.cursor()
-    people_number_cursor.execute("SELECT * FROM people where number=%s",(number,))
-    for row in people_number_cursor.fetchall():
-        print(f"ID={row[0]},Name={row[1]},age={row[2]},gender={row[3]},number={row[4]}")
-    people_number_cursor.close()
+    people_find_cursor.close()
     return True
 
 def all_people():#打印数据库内所有的

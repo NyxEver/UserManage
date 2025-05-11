@@ -84,7 +84,7 @@ class People:
     def __str__(self):#提供了对象的字符串表示形式
         return "Name:"+str(self.name)+", age:"+str(self.age)+", gender:"+str(self.gender)+", number:"+str(self.number)
 
-SQL.py:
+SQL_People.py:
 import mysql.connector
 from People import People
 
