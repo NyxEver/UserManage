@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>人员管理系统</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            margin-bottom: 20px;
+        }
+        .form-section {
+            border: 1px solid #ccc;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .form-section h3 {
+            margin-top: 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        input[type="text"], input[type="number"] {
+            padding: 5px;
+            margin: 5px 0;
+        }
+        button {
+            padding: 5px 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        select {
+            padding: 5px;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>人员管理系统</h1>
+    
+    <div class="container">
+        <!-- 添加人员表单 -->
+        <div class="form-section">
+            <h3>添加人员</h3>
+            <form action="/add_people" method="POST">
+                <div>
+                    <input type="text" name="name" placeholder="姓名" required>
+                </div>
+                <div>
+                    <input type="number" name="age" placeholder="年龄" required>
+                </div>
+                <div>
+                    <select name="gender" required>
+                        <option value="">选择性别</option>
+                        <option value="M">男</option>
+                        <option value="F">女</option>
+                    </select>
+                </div>
+                <div>
+                    <input type="text" name="number" placeholder="编号" required>
+                </div>
+                <div>
+                    <button type="submit">添加</button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- 查找人员表单 -->
+        <div class="form-section">
+            <h3>查找人员</h3>
+            <form action="/find_people" method="POST">
+                <div>
+                    <select name="field_type" required>
+                        <option value="">选择查找字段</option>
+                        <option value="name">姓名</option>
+                        <option value="age">年龄</option>
+                        <option value="gender">性别</option>
+                        <option value="number">编号</option>
+                    </select>
+                </div>
+                <div>
+                    <input type="text" name="value_1" placeholder="查找值" required>
+                </div>
+                <div>
+                    <button type="submit">查找</button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- 删除人员表单 -->
+        <div class="form-section">
+            <h3>删除人员</h3>
+            <form action="/delete_people" method="POST">
+                <div>
+                    <select name="field_type" required>
+                        <option value="">选择删除字段</option>
+                        <option value="name">姓名</option>
+                        <option value="age">年龄</option>
+                        <option value="gender">性别</option>
+                        <option value="number">编号</option>
+                    </select>
+                </div>
+                <div>
+                    <input type="text" name="value" placeholder="删除值" required>
+                </div>
+                <div>
+                    <button type="submit">删除</button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- 修改人员表单 -->
+        <div class="form-section">
+            <h3>修改人员</h3>
+            <form action="/update_people" method="POST">
+                <div>
+                    <select name="field_type" required>
+                        <option value="">选择修改字段</option>
+                        <option value="name">姓名</option>
+                        <option value="age">年龄</option>
+                        <option value="gender">性别</option>
+                        <option value="number">编号</option>
+                    </select>
+                </div>
+                <div>
+                    <input type="text" name="value_1" placeholder="原始值" required>
+                </div>
+                <div>
+                    <input type="text" name="value_2" placeholder="新值" required>
+                </div>
+                <div>
+                    <button type="submit">修改</button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- 人员数据表格 -->
+        <div class="form-section">
+            <h3>人员列表</h3>
+            <table>
+                <tr>
+                    <th>ID</th>
+                    <th>姓名</th>
+                    <th>年龄</th>
+                    <th>性别</th>
+                    <th>编号</th>
+                </tr>
+                
+                <!-- 如果有数据则显示数据行 -->
+                {% if results %}
+                    {% for person in results %}
+                        <tr>
+                            <td>{{ person[0] }}</td>
+                            <td>{{ person[1] }}</td>
+                            <td>{{ person[2] }}</td>
+                            <td>{{ person[3] }}</td>
+                            <td>{{ person[4] }}</td>
+                        </tr>
+                    {% endfor %}
+                <!-- 如果没有数据则显示提示信息 -->
+                {% else %}
+                    <tr>
+                        <td colspan="5" style="text-align: center;">暂无数据</td>
+                    </tr>
+                {% endif %}
+            </table>
+        </div>
+    </div>
+</body>
+</html>

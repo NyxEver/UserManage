@@ -1,15 +1,21 @@
 from flask import Flask, render_template, request, redirect, url_for, abort
-from SQL_People import people_add, people_delete, people_change,people_find
+from SQL_People import people_add, people_delete, people_change, people_find, all_people
+from SQL_account import verify_account
 
 app=Flask(__name__)
 
 @app.route('/')
 def index():
     return render_template('index.html')
-@app.route('/login', methods=['POST'])
-def login():
+@app.route('/account_verify', methods=['POST'])
+def account_verify():
     username = request.form['username']
-    return redirect(url_for('welcome', username=username))
+    password = request.form['password']
+    result_verify=verify_account(username,password)
+    if result_verify:
+        return redirect(url_for('welcome', username=username))
+    else:
+        return "账号密码错误"
 
 @app.route('/welcome/<username>')
 def welcome(username):
@@ -17,7 +23,8 @@ def welcome(username):
 
 @app.route('/main')
 def main():
-    return render_template('main.html')
+    results_all = all_people()
+    return render_template('main.html',results=results_all)
 
 @app.route('/add_people', methods=['POST'])
 def add_people():
@@ -29,7 +36,7 @@ def add_people():
     if result_add: #检查 people_add() 返回的布尔值
         return redirect(url_for('main'))
     else:
-        abort = "添加失败"
+        return "添加失败"
 
 @app.route('/delete_people', methods=['POST'])
 def delete_people():

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>欢迎页面</title>
+    <style>
+        /* 简化的 CSS 样式 */
+        html, body {
+            height: 100%;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        
+        /* 使用简单的表格布局替代 flex */
+        table {
+            width: 100%;
+            height: 100%;
+            border-collapse: collapse;
+        }
+        
+        td {
+            padding: 20px;
+            vertical-align: middle;
+        }
+        
+        /* 左侧登录区域 */
+        .login-container {
+            width: 50%;
+            border-right: 1px solid #ccc;
+        }
+        
+        /* 右侧欢迎区域 */
+        .welcome-container {
+            width: 50%;
+            text-align: center;
+        }
+        
+        /* 表单样式 */
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        input {
+            width: 50%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        
+        /* 登录按钮 */
+        .login-button {
+            background-color: deepskyblue;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .login-button:hover {
+            background-color: dodgerblue;
+        }
+        
+        /* 欢迎文字 */
+        .welcome-text-cn {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .welcome-text-en {
+            font-size: 20px;
+            margin-left: 150px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 使用简单的表格布局替代 flex 布局 -->
+    <table>
+        <tr>
+            <!-- 左侧登录区域 -->
+            <td class="login-container">
+                <form action="/account_verify" method="POST">
+                    <label for="username">账号：</label>
+                    <input type="text" id="username" name="username" required>
+                    
+                    <label for="password">密码：</label>
+                    <input type="password" id="password" name="password" required>
+                    
+                    <button type="submit" class="login-button">登录</button>
+                </form>
+            </td>
+
+            <!-- 右侧欢迎区域 -->
+            <td class="welcome-container">
+                <div class="welcome-text-cn">欢迎使用人员管理系统</div>
+                <div class="welcome-text-en">Welcome to Personnel Management</div>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

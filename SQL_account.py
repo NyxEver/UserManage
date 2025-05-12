@@ -23,7 +23,7 @@ account_cursor.close()
 
 def verify_account(username,password):
     verify_account_cursor = mydb.cursor()
-    verify_account_cursor.execute(f"SELECT * FROM account where {username} = %s and {password} = %s",(username,password))
+    verify_account_cursor.execute("SELECT * FROM account where username = %s and password = %s",(username,password))
     if verify_account_cursor.fetchone():
         return True
     else:

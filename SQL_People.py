@@ -56,13 +56,13 @@ def people_change(field_type , value_1 ,value_2):#修改方法，传入三个参
     people_change_cursor.execute(f"UPDATE people SET {field_type} = %s where {field_type} = %s", (value_2, value_1,))#修改符合条件的记录
     mydb.commit()#提交
     print("修改成功")
-    return True
     people_change_cursor.close()
+    return True
 
 def people_find(field_type , value_1):
     #name, age, gender, number
     people_find_cursor = mydb.cursor()
-    people_find_cursor.execute(f"SELECT * FROM people where {field_type} = %s",(value_1))
+    people_find_cursor.execute(f"SELECT * FROM people where {field_type} = %s",(value_1,))
     for row in people_find_cursor.fetchall():
         print(f"ID={row[0]},Name={row[1]},age={row[2]},gender={row[3]},number={row[4]}")
     people_find_cursor.close()
@@ -72,15 +72,9 @@ def all_people():#打印数据库内所有的
     all_people_cursor = mydb.cursor()
     all_people_cursor.execute("SELECT * FROM people")#搜索people表内所有的数据
     try:
-        for row in all_people_cursor.fetchall():#遍历并接收全部的返回结果行
-            array=row[0]
-            name=row[1]
-            age=row[2]
-            gender=row[3]
-            number=row[4]
-            print(f"名单列表：ID={array}Name={name}, age={age}, gender={gender}, number={number}")#格式化打印
+        results_all=all_people_cursor.fetchall()
         all_people_cursor.close()
-        return True
+        return results_all
     except mysql.connector.Error as error:
         print(f"ERROR:{error}")
         return False

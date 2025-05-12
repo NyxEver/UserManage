@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>欢迎</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+        }
+        h1 {
+            color: blue;
+        }
+    </style>
+    <script>
+        // 3秒后跳转到主页面
+        setTimeout(function() {
+            window.location.href = "{{ url_for('main') }}";
+        }, 3000);
+    </script>
+</head>
+<body>
+    <h1>Hello, {{ username }}!</h1>
+    <p>正在跳转到主页面...</p>
+</body>
+</html>
