@@ -110,9 +110,9 @@
         <!-- 删除人员表单 -->
         <div class="form-section">
             <h3>删除人员</h3>
-            <form action="/delete_people" method="POST">
+            <form id="deleteForm" action="/delete_people" method="POST" onsubmit="return confirmDelete()">
                 <div>
-                    <select name="field_type" required>
+                    <select name="field_type" id="deleteFieldType" required>
                         <option value="">选择删除字段</option>
                         <option value="name">姓名</option>
                         <option value="age">年龄</option>
@@ -121,7 +121,7 @@
                     </select>
                 </div>
                 <div>
-                    <input type="text" name="value" placeholder="删除值" required>
+                    <input type="text" name="value" id="deleteValue" placeholder="删除值" required>
                 </div>
                 <div>
                     <button type="submit">删除</button>
@@ -157,6 +157,16 @@
         <!-- 人员数据表格 -->
         <div class="form-section">
             <h3>人员列表</h3>
+            {% if search_performed %}
+                <div style="margin-bottom: 10px; padding: 8px; background-color: #f0f0f0; border-radius: 4px;">
+                    {% if results %}
+                        <p>查找结果：找到 {{ results|length }} 条符合"{{ search_field }}"为"{{ search_value }}"的记录</p>
+                    {% else %}
+                        <p>查找结果：没有找到符合"{{ search_field }}"为"{{ search_value }}"的记录</p>
+                    {% endif %}
+                    <a href="{{ url_for('main') }}">返回完整列表</a>
+                </div>
+            {% endif %}
             <table>
                 <tr>
                     <th>ID</th>
@@ -186,5 +196,23 @@
             </table>
         </div>
     </div>
+    <script>
+        function confirmDelete() {
+            const fieldType = document.getElementById('deleteFieldType').value;
+            const value = document.getElementById('deleteValue').value;
+            
+            let fieldName = "";
+            switch(fieldType) {
+                case "name": fieldName = "姓名"; break;
+                case "age": fieldName = "年龄"; break;
+                case "gender": fieldName = "性别"; break;
+                case "number": fieldName = "编号"; break;
+                default: fieldName = "未选择"; break;
+            }
+            
+            const confirmMessage = `您确定要删除${fieldName}为"${value}"的人员记录吗？此操作不可撤销。`;
+            return confirm(confirmMessage);
+        }
+    </script>
 </body>
 </html>

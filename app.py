@@ -15,7 +15,7 @@ def account_verify():
     if result_verify:
         return redirect(url_for('welcome', username=username))
     else:
-        return "账号密码错误"
+        return "账号或密码错误"
 
 @app.route('/welcome/<username>')
 def welcome(username):
@@ -64,9 +64,13 @@ def find_people():
     field_type = request.form['field_type']
     value_1 = request.form['value_1']
     result_find = people_find(field_type, value_1)
+    #if result_find:
+    #    return redirect(url_for('main'))
     if result_find:
-        return redirect(url_for('main'))
+        return render_template('main.html', results=result_find, search_performed=True,
+                              search_field=field_type, search_value=value_1)
     else:
-        return "查找错误"
+        return render_template('main.html', results=[], search_performed=True, 
+                              search_field=field_type, search_value=value_1)
 
 app.run()

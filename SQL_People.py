@@ -34,39 +34,42 @@ def people_add(name, age, gender, number):#添加方法
 def people_delete(field_type , value):#删除方法，传入两个参数，1：类别，2：传入的参数
     people_delete_cursor = mydb.cursor()
     people_delete_cursor.execute(f"SELECT * FROM people where {field_type} = %s",(value,))#先寻找符合条件的记录
-    for row in people_delete_cursor.fetchall():#接收全部的返回结果行
-        print(f"找到了：ID={row[0]},Name={row[1]},age={row[2]},gender={row[3]},number={row[4]}")#打印确认
-    del_input =input("请确认是否删除 y/n：")
-    if del_input=="y":
+    if people_delete_cursor.fetchall():
         people_delete_cursor.execute(f"DELETE FROM people where {field_type} = %s",(value,))#确认删除符合条件的记录
-        print(f"已删除{people_delete_cursor.rowcount}条记录：Name为{row[1]}的条例")
         mydb.commit()
         return True
-    elif del_input=="n":
+    else:
         print("取消删除成功")
         return False
     people_delete_cursor.close()
 
 def people_change(field_type , value_1 ,value_2):#修改方法，传入三个参数，1：类别，2：传入的老参数，3：传入的新参数
-    if field_type == 'name':#验证传入的名字参数
-        test_person=People(value_2,20,'M','202020')
-    elif field_type == 'age':#验证传入的年龄参数
-        test_person=People('a',int(value_2),'M','202020')
-    people_change_cursor = mydb.cursor()
-    people_change_cursor.execute(f"UPDATE people SET {field_type} = %s where {field_type} = %s", (value_2, value_1,))#修改符合条件的记录
-    mydb.commit()#提交
-    print("修改成功")
-    people_change_cursor.close()
-    return True
+    try:
+        if field_type == 'name':#验证传入的名字参数
+            test_person=People(value_2,20,'M','202020')
+        elif field_type == 'age':#验证传入的年龄参数
+            test_person=People('a',int(value_2),'M','202020')
+        people_change_cursor = mydb.cursor()
+        people_change_cursor.execute(f"UPDATE people SET {field_type} = %s where {field_type} = %s", (value_2, value_1,))#修改符合条件的记录
+        mydb.commit()#提交
+        print("修改成功")
+        people_change_cursor.close()
+        return True
+    except mysql.connector.Error as error:
+        print(error)
+        return False
 
 def people_find(field_type , value_1):
     #name, age, gender, number
     people_find_cursor = mydb.cursor()
     people_find_cursor.execute(f"SELECT * FROM people where {field_type} = %s",(value_1,))
-    for row in people_find_cursor.fetchall():
-        print(f"ID={row[0]},Name={row[1]},age={row[2]},gender={row[3]},number={row[4]}")
+    result_find = people_find_cursor.fetchall()
     people_find_cursor.close()
-    return True
+    if result_find:
+        #people_find_cursor.close()
+        return result_find
+    else:
+        return False
 
 def all_people():#打印数据库内所有的
     all_people_cursor = mydb.cursor()
