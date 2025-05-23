@@ -42,12 +42,16 @@ def people_delete(field_type , value):#删除方法，传入两个参数，1：�
         return False
     people_delete_cursor.close()
 
-def people_change_dict(field_type,value_find):
+def people_change_dict(field_type,value_find,list_number):
     try:
         people_change_cursor = mydb.cursor()
         people_change_cursor.execute(f"SELECT * FROM people where {field_type} = %s",(value_find,))
         result_find = people_change_cursor.fetchall()
-        people_change_dict = dict(zip(['number', 'name', 'age', 'gender'], result_find[0]))
+        if result_find:
+            people_change_dict = dict(zip(['number', 'name', 'age', 'gender'], result_find[list_number]))
+        else:
+            return None
+        #people_change_dict = dict(zip(['number', 'name', 'age', 'gender'], result_find[0]))
         print(people_change_dict)
         print("查询成功")
         people_change_cursor.close()
@@ -80,14 +84,14 @@ def people_change(people_change_dict,people_dict):
                                          (new_value, people_dict['name'], people_dict['age'], people_dict['gender']))
         else:
             people_change_cursor.execute(f"UPDATE people SET name = %s,age=%s,gender=%s where number = %s", (people_dict['name'], people_dict['age'], people_dict['gender'],original_value))
-            mydb.commit()  # 提交
-            print("修改成功")
-            people_change_cursor.close()
-            return True
+        mydb.commit()  # 提交
+        print("修改成功")
+        people_change_cursor.close()
+        return True
 
     except mysql.connector.Error as error:
-            print(error)
-            return False
+        print(error)
+        return False
 
 def people_find(field_type , value_1):
     people_find_cursor = mydb.cursor()

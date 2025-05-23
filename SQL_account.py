@@ -30,7 +30,7 @@ account_cursor.close()
 
 def verify_account(username,password):
     verify_account_cursor = mydb.cursor()
-    verify_account_cursor.execute("SELECT * FROM account where username = %s and password = %s",(username,password))
+    verify_account_cursor.execute("SELECT * FROM account where username = %s and password = %s",(username,password,))
     if verify_account_cursor.fetchone():
         return True
     else:
@@ -39,7 +39,7 @@ def verify_account(username,password):
 def register_account(username,password,identify=1):#只能注册游客身份
     try:
         register_account_cursor = mydb.cursor()
-        register_account_cursor.execute("insert into account(username,password,identify) values(%s,%s,%s)",(username,password))
+        register_account_cursor.execute("insert into account(username,password,identify) values(%s,%s,%s)",(username,password,identify))
         mydb.commit()
         register_account_cursor.close()
         return True
