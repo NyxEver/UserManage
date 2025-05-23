@@ -77,7 +77,7 @@
                     </select>
                 </div>
                 <div>
-                    <input type="text" name="number" placeholder="编号" required>
+                    <input type="number" name="number" placeholder="编号" required>
                 </div>
                 <div>
                     <button type="submit">添加</button>
@@ -132,10 +132,10 @@
         <!-- 修改人员表单 -->
         <div class="form-section">
             <h3>修改人员</h3>
-            <form action="/update_people" method="POST">
+            <form action="/find_people" method="POST" id="searchForm">
                 <div>
                     <select name="field_type" required>
-                        <option value="">选择修改字段</option>
+                        <option value="">选择查找字段</option>
                         <option value="name">姓名</option>
                         <option value="age">年龄</option>
                         <option value="gender">性别</option>
@@ -143,13 +143,38 @@
                     </select>
                 </div>
                 <div>
-                    <input type="text" name="value_1" placeholder="原始值" required>
+                    <input type="text" name="value_1" placeholder="查找值" required>
                 </div>
                 <div>
-                    <input type="text" name="value_2" placeholder="新值" required>
+                    <button type="submit">查找</button>
                 </div>
-                <div>
-                    <button type="submit">修改</button>
+            </form>
+
+            <form action="/update_people" method="POST" id="updateForm" style="display: none; margin-top: 20px;">
+                <input type="hidden" name="field_type" id="updateFieldType">
+                <input type="hidden" name="value_1" id="updateValue1">
+                <input type="hidden" name="list_number" id="selectedIndex" value="">
+                <div id="updateFields">
+                    <h4>修改选中人员信息：</h4>
+                    <div>
+                        <input type="text" name="name" id="updateName" placeholder="新姓名">
+                    </div>
+                    <div>
+                        <input type="number" name="age" id="updateAge" placeholder="新年龄">
+                    </div>
+                    <div>
+                        <select name="gender" id="updateGender">
+                            <option value="">选择性别</option>
+                            <option value="M">男</option>
+                            <option value="F">女</option>
+                        </select>
+                    </div>
+                    <div>
+                        <input type="number" name="number" id="updateNumber" placeholder="新编号">
+                    </div>
+                    <div>
+                        <button type="submit">确认修改</button>
+                    </div>
                 </div>
             </form>
         </div>
@@ -169,25 +194,25 @@
             {% endif %}
             <table>
                 <tr>
-                    <th>ID</th>
+                    <th>选择</th>
+                    <th>编号</th>
                     <th>姓名</th>
                     <th>年龄</th>
                     <th>性别</th>
-                    <th>编号</th>
                 </tr>
                 
-                <!-- 如果有数据则显示数据行 -->
                 {% if results %}
                     {% for person in results %}
                         <tr>
+                            <td>
+                                <input type="radio" name="selectPerson" value="{{ loop.index0 }}" onchange="handleSelection(this)">
+                            </td>
                             <td>{{ person[0] }}</td>
                             <td>{{ person[1] }}</td>
                             <td>{{ person[2] }}</td>
                             <td>{{ person[3] }}</td>
-                            <td>{{ person[4] }}</td>
                         </tr>
                     {% endfor %}
-                <!-- 如果没有数据则显示提示信息 -->
                 {% else %}
                     <tr>
                         <td colspan="5" style="text-align: center;">暂无数据</td>
@@ -212,6 +237,38 @@
             
             const confirmMessage = `您确定要删除${fieldName}为"${value}"的人员记录吗？此操作不可撤销。`;
             return confirm(confirmMessage);
+        }
+        
+        function handleSelection(radio) {
+            const row = radio.closest('tr');
+            const cells = row.cells;
+            
+            // 显示修改表单
+            document.getElementById('updateForm').style.display = 'block';
+            
+            // 获取查询表单中的值
+            const searchFieldType = document.querySelector('#searchForm select[name="field_type"]').value;
+            const searchValue = document.querySelector('#searchForm input[name="value_1"]').value;
+            
+            // 如果查询表单有值，则使用查询表单的值；否则默认使用"number"作为查询字段，使用编号作为查询值
+            document.getElementById('updateFieldType').value = searchFieldType || "number";
+            document.getElementById('updateValue1').value = searchValue || cells[1].textContent.trim();
+            
+            // 设置选中的索引
+            document.getElementById('selectedIndex').value = radio.value;
+            
+            // 填充原有数据到修改表单中
+            document.getElementById('updateNumber').value = cells[1].textContent.trim();
+            document.getElementById('updateName').value = cells[2].textContent.trim();
+            document.getElementById('updateAge').value = cells[3].textContent.trim();
+            document.getElementById('updateGender').value = cells[4].textContent.trim();
+            
+            // 调试输出
+            console.log("设置的隐藏字段值：", {
+                field_type: document.getElementById('updateFieldType').value,
+                value_1: document.getElementById('updateValue1').value,
+                list_number: document.getElementById('selectedIndex').value
+            });
         }
     </script>
 </body>

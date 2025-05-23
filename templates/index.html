@@ -63,6 +63,26 @@
             background-color: dodgerblue;
         }
         
+        /* 登录和注册按钮容器 */
+        .button-container {
+            margin-top: 10px;
+        }
+        
+        /* 注册按钮 */
+        .register-button {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        
+        .register-button:hover {
+            background-color: #218838;
+        }
+        
         /* 欢迎文字 */
         .welcome-text-cn {
             font-size: 24px;
@@ -88,7 +108,24 @@
                     <label for="password">密码：</label>
                     <input type="password" id="password" name="password" required>
                     
-                    <button type="submit" class="login-button">登录</button>
+                    <div class="button-container">
+                        <button type="submit" class="login-button">登录</button>
+                        <button type="button" onclick="showRegisterForm()" class="register-button">注册账号</button>
+                    </div>
+                </form>
+
+                <!-- 注册表单 -->
+                <form id="registerForm" action="/account_register" method="POST" style="display: none; margin-top: 20px;">
+                    <label for="reg_username">注册账号：</label>
+                    <input type="text" id="reg_username" name="username" required>
+                    
+                    <label for="reg_password">注册密码：</label>
+                    <input type="password" id="reg_password" name="password" required>
+                    
+                    <div class="button-container">
+                        <button type="submit" class="register-button">确认注册</button>
+                        <button type="button" onclick="hideRegisterForm()" class="login-button">返回登录</button>
+                    </div>
                 </form>
             </td>
 
@@ -99,5 +136,17 @@
             </td>
         </tr>
     </table>
+
+    <script>
+        function showRegisterForm() {
+            document.querySelector('form[action="/account_verify"]').style.display = 'none';
+            document.getElementById('registerForm').style.display = 'block';
+        }
+
+        function hideRegisterForm() {
+            document.querySelector('form[action="/account_verify"]').style.display = 'block';
+            document.getElementById('registerForm').style.display = 'none';
+        }
+    </script>
 </body>
 </html>
