@@ -3,6 +3,10 @@ from SQL_People import people_add, people_delete, people_change, people_find, al
     change_value
 from SQL_account import verify_account,register_account
 
+print("2025.05.11")
+print("管理系统")
+print("SQL+FLASK+HTML storage version v0.3")
+
 app=Flask(__name__)
 
 @app.route('/')
@@ -24,7 +28,8 @@ def account_register():
     password = request.form['password' ]
     result_register = register_account(username,password)
     if result_register:
-        return redirect(url_for('index', register_success='true', message="注册成功"))
+        #return redirect(url_for('index', register_success='true', message="注册成功"))
+        return redirect(url_for('index',message="注册成功"))
     else:
         return "注册失败"
 
