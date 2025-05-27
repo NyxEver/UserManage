@@ -1,5 +1,4 @@
 import mysql.connector
-from People import People
 
 mydb = mysql.connector.connect(#数据库链接
     host="127.0.0.1"

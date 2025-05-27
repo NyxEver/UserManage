@@ -1,4 +1,4 @@
-from People import *
+from abandon.People import *
 from SQL_People import (people_add, people_delete, people_change,
                         peopleName_find, peopleAge_find, peopleGender_find, peopleNumber_find, all_people)
 
