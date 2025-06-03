@@ -6,30 +6,25 @@ mydb = mysql.connector.connect(#数据库链接
     ,password="2397947891"
     ,database="*"
 )
-student_cursor = mydb.cursor()
-student_cursor.execute("CREATE TABLE if not exists students (number int(8) not null PRIMARY KEY,"
-                      "name varchar(255) not null,"
-                      "age int(3) not null,"
-                      "gender char(1) not null,"
-                      "grade varchar(50) not null)")
-student_cursor.close()
 
-teacher_cursor = mydb.cursor()
-teacher_cursor.execute("CREATE TABLE if not exists teachers (number int(8) not null PRIMARY KEY,"
+person_cursor = mydb.cursor()
+person_cursor.execute("CREATE TABLE if not exists persons (number int(8) not null PRIMARY KEY,"
                       "name varchar(255) not null,"
                       "age int(3) not null,"
                       "gender char(1) not null,"
-                      "position varchar(50) not null)")
-teacher_cursor.close()
+                      "role varchar(20) not null,"
+                      "grade varchar(20) not null,"
+                      "position varchar(20) not null)")
+person_cursor.close()
 
 def person_add(person):
     try:
         class_name = person.__class__.__name__
         person_add_cursor = mydb.cursor()
         if class_name == "Student":
-            person_add_cursor.execute("INSERT INTO students (name, age, gender, number,grade) values(%s,%s,%s,%s)",(person.name, person.age, person.gender, person.number, person.grade))
+            person_add_cursor.execute("INSERT INTO persons (number, name, age, gender, role,grade) values(%s,%s,%s,%s,%s,%s)",(person.number, person.name, person.age, person.gender, person.role, person.grade))
         elif class_name == "Teacher":
-            person_add_cursor.execute("INSERT INTO teachers (name, age, gender, number,position) values(%s,%s,%s,%s)",(person.name, person.age, person.gender, person.number, person.position))
+            person_add_cursor.execute("INSERT INTO persons (number, name, age, gender, role,position) values(%s,%s,%s,%s,%s,%s)",(person.number, person.name, person.age, person.gender, person.role, person.position))
         else:
             person_add_cursor.close()
             return False
@@ -39,44 +34,42 @@ def person_add(person):
     except mysql.connector.Error as error:
         print(f"数据库错误: {error}")
         return False
-def person_delete(field_type,del_value,list_number):
-    person_delete_cursor = mydb.cursor()
-    result_find= person_find(field_type,del_value)
-    if result_find :
-        #user_input_row=result_find[0]
-        user_first_element = result_find[list_number][0]
-        person_delete_cursor.execute("DELETE students,teachers FROM students JOIN teachers on,"
-                                     "students.number=teachers.number where students.number = %s",
-                                     (user_first_element,))
-        mydb.commit()
-        return True
-    else:
-        print("取消删除成功")
-        return False
-    person_delete_cursor.close()
 
-def person_change_dict(field_type,change_value,list_number):
+#person_delete_cursor.execute("DELETE students,teachers FROM students JOIN teachers on students.number=teachers.number where students.number = %s",(user_first_element,))
+
+def person_delete(person):
+    person_delete_cursor = mydb.cursor()
+    #class_name=person.get_field_type()
     try:
-        person_change_cursor = mydb.cursor()
+        person_delete_cursor.execute("DELETE FROM persons where number=%s",(person.number,))
+        mydb.commit()
+        person_delete_cursor.close()
+        return True
+    except mysql.connector.Error as error:
+        print(f"数据库错误: {error}")
+        return False
+
+def person_update_dict(field_type,change_value,list_number):
+    try:
+        person_update_cursor = mydb.cursor()
         result_find= person_find(field_type,change_value)
         if result_find:
             if field_type == "grade":
-                person_change_dict = dict(zip(['number', 'name', 'age', 'gender', 'grade'], result_find[list_number]))
+                person_update_dict = dict(zip(['number', 'name', 'age', 'gender', 'grade'], result_find[list_number]))
             elif field_type == "position":
-                person_change_dict = dict(zip(['number', 'name', 'age', 'gender', 'position'], result_find[list_number]))
+                person_update_dict = dict(zip(['number', 'name', 'age', 'gender', 'position'], result_find[list_number]))
         else:
             return None
-        print(person_change_dict)
-        print("查询成功")
-        person_change_cursor.close()
-        return person_change_dict  # 返回字典而不是True
+        print(person_update_dict)
+        person_update_cursor.close()
+        return person_update_dict  # 返回字典而不是True
     except mysql.connector.Error as error:
         print(error)
         return None  # 失败时返回None
 
-def change_value(person_change_dict,new_values):
+def update_value(person_update_dict,new_values):
     try:
-        person_dict = person_change_dict.copy()
+        person_dict = person_update_dict.copy()
         person_dict['name']= new_values[0]
         person_dict['age']= new_values[1]
         person_dict['gender']= new_values[2]
@@ -133,4 +126,14 @@ def person_find(field_type,find_value):
     if result_find:
         return result_find
     else:
+        return False
+def all_person():#打印数据库内所有的
+    all_person_cursor = mydb.cursor()
+    all_person_cursor.execute("SELECT * FROM students UNION SELECT * FROM teachers")#搜索people表内所有的数据
+    try:
+        results_all=all_person_cursor.fetchall()
+        all_person_cursor.close()
+        return results_all
+    except mysql.connector.Error as error:
+        print(f"ERROR:{error}")
         return False
