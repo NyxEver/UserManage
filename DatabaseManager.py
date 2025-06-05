@@ -3,7 +3,7 @@ import mysql.connector
 mydb = mysql.connector.connect(#数据库链接
     host="127.0.0.1"
     ,user="root"
-    ,password="2397947891"
+    ,password="*"
     ,database="*"
 )
 
@@ -13,8 +13,8 @@ person_cursor.execute("CREATE TABLE if not exists persons (number int(8) not nul
                       "age int(3) not null,"
                       "gender char(1) not null,"
                       "role varchar(20) not null,"
-                      "grade varchar(20) not null,"
-                      "position varchar(20) not null)")
+                      "grade varchar(20),"
+                      "position varchar(20))")
 person_cursor.close()
 
 def person_add(person):
@@ -93,17 +93,17 @@ def person_update(person_change_dict,person_dict):
                                          f"students.number=teachers.number where student.number = %s",
                                          (original_value,))
             if 'grade' in person_dict:
-                person_change_cursor.execute("INSERT INTO students (number, name, age, gender,grade) VALUES (%s, %s, %s, %s, %s)",
+                person_change_cursor.execute("INSERT INTO persons (number, name, age, gender,grade) VALUES (%s, %s, %s, %s, %s)",
                                              (new_value, person_dict['name'], person_dict['age'], person_dict['gender'], person_dict['grade']))
             elif 'position' in person_dict:
-                person_change_cursor.execute("INSERT INTO teachers (number, name, age, gender, position) VALUES (%s, %s, %s, %s, %s)",
+                person_change_cursor.execute("INSERT INTO persons (number, name, age, gender, position) VALUES (%s, %s, %s, %s, %s)",
                                              (new_value, person_dict['name'], person_dict['age'], person_dict['gender'], person_dict['position']))
         else:
             if 'grade' in person_dict:
-                person_change_cursor.execute(f"UPDATE students SET name = %s,age=%s,gender=%s, grade=%s where number = %s",
+                person_change_cursor.execute(f"UPDATE persons SET name = %s,age=%s,gender=%s, grade=%s where number = %s",
                                              (person_dict['name'], person_dict['age'], person_dict['gender'], person_dict['grade'], original_value))
             elif 'position' in person_dict:
-                person_change_cursor.execute(f"UPDATE teachers SET name = %s,age=%s,gender=%s, position=%s where number = %s",
+                person_change_cursor.execute(f"UPDATE persons SET name = %s,age=%s,gender=%s, position=%s where number = %s",
                                              (person_dict['name'], person_dict['age'], person_dict['gender'],person_dict['position'], original_value))
         mydb.commit()
         print("修改成功")
@@ -116,11 +116,11 @@ def person_update(person_change_dict,person_dict):
 def person_find(field_type,find_value):
     person_find_cursor = mydb.cursor()
     if field_type == "grade":
-        person_find_cursor.execute(f"SELECT * FROM students where grade = %s", (find_value,))
+        person_find_cursor.execute(f"SELECT * FROM persons where grade = %s", (find_value,))
     elif field_type == "position":
-        person_find_cursor.execute(f"SELECT * FROM teachers where position = %s", (find_value,))
+        person_find_cursor.execute(f"SELECT * FROM persons where position = %s", (find_value,))
     else:
-        person_find_cursor.execute(f"SELECT students.*,teachers.* FROM students JOIN teachers on students.{field_type}= teachers.{field_type} where {field_type} = %s", (find_value,))
+        person_find_cursor.execute(f"SELECT * FROM persons where {field_type} = %s", (find_value,))
     result_find = person_find_cursor.fetchall()
     person_find_cursor.close()
     if result_find:
@@ -129,7 +129,7 @@ def person_find(field_type,find_value):
         return False
 def all_person():#打印数据库内所有的
     all_person_cursor = mydb.cursor()
-    all_person_cursor.execute("SELECT * FROM students UNION SELECT * FROM teachers")#搜索people表内所有的数据
+    all_person_cursor.execute("SELECT * FROM persons")#搜索people表内所有的数据
     try:
         results_all=all_person_cursor.fetchall()
         all_person_cursor.close()

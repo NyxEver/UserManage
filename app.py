@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for
-from DatabaseManager import all_person, person_find
+from DatabaseManager import all_person, person_find, update_value, person_update
 from Person import Person
 from SQL_account import verify_account, register_account
 from Student import Student
@@ -76,7 +76,7 @@ def delete_people():
     field_type = request.form['field_type']
     del_value = request.form['del_value']
     list_number = request.form.get('list_number')
-    person_find_data = person_find(field_type,del_value)
+    person_find_data = Person.find_SQL(field_type,del_value)
     list_number = int(list_number)
     person_data = person_find_data[list_number]
     if person_data[4]=='Student':
@@ -105,8 +105,7 @@ def update_people():
         request.form.get('gender', original_dict['gender']),
         int(request.form.get('number', original_dict['number']))
     ]
-    updated_dict = change_value(original_dict, new_values)
-    result_update = people_change(original_dict, updated_dict)
+    result_update= Person.update_SQL(original_dict, new_values)
     if result_update:
         return redirect(url_for('main'))
     else:
@@ -117,7 +116,7 @@ def update_people():
 def find_people():
     field_type = request.form['field_type']
     value_1 = request.form['value_1']
-    result_find = people_find(field_type, value_1)
+    result_find = Person.find_SQL(field_type, value_1)
     if result_find:
         #    return redirect(url_for('main'))
         return render_template('main.html', results=result_find, search_performed=True,

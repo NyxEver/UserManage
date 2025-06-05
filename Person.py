@@ -23,14 +23,20 @@ class Person(ABC):
     def delete_SQL(self):
         result = person_delete(self)
         return result
-    def update_dict(self, field_type, change_value, list_number):
+
+    @staticmethod
+    def update_dict(field_type, change_value, list_number):
         result_dict = person_update_dict(field_type, change_value, list_number)
         return result_dict
-    def update_SQL(self, result_dict, new_values):
+
+    @staticmethod
+    def update_SQL(result_dict, new_values):
         updated_dict = update_value(result_dict, new_values)
         result_update = person_update(result_dict, updated_dict)
         return result_update
-    def find_SQL(self, field_type, find_value):
+
+    @staticmethod
+    def find_SQL(field_type, find_value):
         result = person_find(field_type, find_value)
         return result
     def get_field_type(self):
