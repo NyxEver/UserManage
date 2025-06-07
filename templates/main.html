@@ -53,6 +53,16 @@
             padding: 5px;
             margin: 5px 0;
         }
+        .form-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .form-row label {
+            width: 80px;
+            margin-right: 10px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -63,21 +73,41 @@
         <div class="form-section">
             <h3>添加人员</h3>
             <form action="/add_people" method="POST">
-                <div>
+                <div class="form-row">
+                    <label>姓名：</label>
                     <input type="text" name="name" placeholder="姓名" required>
                 </div>
-                <div>
+                <div class="form-row">
+                    <label>年龄：</label>
                     <input type="number" name="age" placeholder="年龄" required>
                 </div>
-                <div>
+                <div class="form-row">
+                    <label>性别：</label>
                     <select name="gender" required>
                         <option value="">选择性别</option>
                         <option value="M">男</option>
                         <option value="F">女</option>
                     </select>
                 </div>
-                <div>
+                <div class="form-row">
+                    <label>编号：</label>
                     <input type="number" name="number" placeholder="编号" required>
+                </div>
+                <div class="form-row">
+                    <label>身份：</label>
+                    <select name="role" required>
+                        <option value="">选择身份</option>
+                        <option value="Student">Student</option>
+                        <option value="Teacher">Teacher</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <select name="input_status" required>
+                        <option value="">选择类型</option>
+                        <option value="grade">年级</option>
+                        <option value="position">职位</option>
+                    </select>
+                    <input type="text" name="status_value" placeholder="请输入年级或职位" required>
                 </div>
                 <div>
                     <button type="submit">添加</button>
@@ -96,6 +126,9 @@
                         <option value="age">年龄</option>
                         <option value="gender">性别</option>
                         <option value="number">编号</option>
+                        <option value="role">身份</option>
+                        <option value="grade">年级</option>
+                        <option value="position">职位</option>
                     </select>
                 </div>
                 <div>
@@ -118,6 +151,9 @@
                         <option value="age">年龄</option>
                         <option value="gender">性别</option>
                         <option value="number">编号</option>
+                        <option value="role">身份</option>
+                        <option value="grade">年级</option>
+                        <option value="position">职位</option>
                     </select>
                 </div>
                 <div>
@@ -139,6 +175,9 @@
                         <p><strong>年龄：</strong><span id="deletePersonAge"></span></p>
                         <p><strong>性别：</strong><span id="deletePersonGender"></span></p>
                         <p><strong>编号：</strong><span id="deletePersonNumber"></span></p>
+                        <p><strong>身份：</strong><span id="deletePersonRole"></span></p>
+                        <p><strong>年级：</strong><span id="deletePersonGrade"></span></p>
+                        <p><strong>职位：</strong><span id="deletePersonPosition"></span></p>
                     </div>
                     <div>
                         <button type="submit" style="background-color: #f44336;">确认删除</button>
@@ -158,6 +197,9 @@
                         <option value="age">年龄</option>
                         <option value="gender">性别</option>
                         <option value="number">编号</option>
+                        <option value="role">身份</option>
+                        <option value="grade">年级</option>
+                        <option value="position">职位</option>
                     </select>
                 </div>
                 <div>
@@ -191,6 +233,19 @@
                         <input type="number" name="number" id="updateNumber" placeholder="新编号">
                     </div>
                     <div>
+                        <select name="role" id="updateRole">
+                            <option value="">选择身份</option>
+                            <option value="Student">Student</option>
+                            <option value="Teacher">Teacher</option>
+                        </select>
+                    </div>
+                    <div>
+                        <input type="text" name="grade" id="updateGrade" placeholder="新年级">
+                    </div>
+                    <div>
+                        <input type="text" name="position" id="updatePosition" placeholder="新职位">
+                    </div>
+                    <div>
                         <button type="submit">确认修改</button>
                     </div>
                 </div>
@@ -202,6 +257,12 @@
             <h3>人员列表</h3>
             {% if search_performed %}
                 <div style="margin-bottom: 10px; padding: 8px; background-color: #f0f0f0; border-radius: 4px;">
+                    <!-- 在查询结果显示区域添加 -->
+                    <!-- 问题代码 -->
+                    {% if people_data %}
+                    <input type="hidden" id="currentSearchFieldType" value="{{ search_field }}">
+                    <input type="hidden" id="currentSearchValue" value="{{ search_value }}">
+                    {% endif %}
                     {% if results %}
                         <p>查找结果：找到 {{ results|length }} 条符合"{{ search_field }}"为"{{ search_value }}"的记录</p>
                     {% else %}
@@ -217,6 +278,9 @@
                     <th>姓名</th>
                     <th>年龄</th>
                     <th>性别</th>
+                    <th>身份</th>
+                    <th>年级</th>
+                    <th>职位</th>
                 </tr>
                 
                 {% if results %}
@@ -229,11 +293,14 @@
                             <td>{{ person[1] }}</td>
                             <td>{{ person[2] }}</td>
                             <td>{{ person[3] }}</td>
+                            <td>{{ person[4] if person|length > 4 else '' }}</td>
+                            <td>{{ person[5] if person|length > 5 else '' }}</td>
+                            <td>{{ person[6] if person|length > 6 else '' }}</td>
                         </tr>
                     {% endfor %}
                 {% else %}
                     <tr>
-                        <td colspan="5" style="text-align: center;">暂无数据</td>
+                        <td colspan="8" style="text-align: center;">暂无数据</td>
                     </tr>
                 {% endif %}
             </table>
@@ -268,7 +335,11 @@
             document.getElementById('updateNumber').value = cells[1].textContent.trim();
             document.getElementById('updateName').value = cells[2].textContent.trim();
             document.getElementById('updateAge').value = cells[3].textContent.trim();
-            document.getElementById('updateGender').value = cells[4].textContent.trim();
+            // 修正数据映射
+            document.getElementById('updateGender').value = cells[4].textContent.trim(); // 应该是 cells[3]
+            document.getElementById('updateRole').value = cells[5].textContent.trim();   // 应该是 cells[4]
+            document.getElementById('updateGrade').value = cells[6] ? cells[6].textContent.trim() : '';
+            document.getElementById('updatePosition').value = cells[7] ? cells[7].textContent.trim() : '';
             
             // 处理删除表单
             handleDeleteSelection(radio);
@@ -292,9 +363,13 @@
             const deleteSearchFieldType = document.querySelector('#deleteSearchForm select[name="field_type"]').value;
             const deleteSearchValue = document.querySelector('#deleteSearchForm input[name="value_1"]').value;
             
+            // 直接使用当前搜索条件，移除不必要的代码
+            const currentSearchFieldType = document.getElementById('currentSearchFieldType')?.value || "name";
+            const currentSearchValue = document.getElementById('currentSearchValue')?.value || cells[2].textContent.trim();
+            
             // 设置删除表单的隐藏字段
-            document.getElementById('deleteFieldType').value = deleteSearchFieldType || "number";
-            document.getElementById('deleteValue1').value = deleteSearchValue || cells[1].textContent.trim();
+            document.getElementById('deleteFieldType').value = currentSearchFieldType;
+            document.getElementById('deleteValue1').value = currentSearchValue;
             document.getElementById('deleteSelectedIndex').value = radio.value;
             
             // 显示要删除的人员信息
@@ -302,6 +377,9 @@
             document.getElementById('deletePersonName').textContent = cells[2].textContent.trim();
             document.getElementById('deletePersonAge').textContent = cells[3].textContent.trim();
             document.getElementById('deletePersonGender').textContent = cells[4].textContent.trim();
+            document.getElementById('deletePersonRole').textContent = cells[5] ? cells[5].textContent.trim() : '';
+            document.getElementById('deletePersonGrade').textContent = cells[6] ? cells[6].textContent.trim() : '';
+            document.getElementById('deletePersonPosition').textContent = cells[7] ? cells[7].textContent.trim() : '';
         }
     </script>
 </body>
