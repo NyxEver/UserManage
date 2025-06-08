@@ -63,193 +63,249 @@
             margin-right: 10px;
             font-weight: bold;
         }
+        
+        /* 新增的导航按钮样式 */
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 10px;
+        }
+        
+        .nav-btn {
+            padding: 10px 20px;
+            background-color: #f8f9fa;
+            color: #333;
+            border: 1px solid #ddd;
+            cursor: pointer;
+            border-radius: 5px 5px 0 0;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-btn:hover {
+            background-color: #e9ecef;
+        }
+        
+        .nav-btn.active {
+            background-color: #4CAF50;
+            color: white;
+            border-color: #4CAF50;
+        }
+        
+        /* 隐藏所有功能区域 */
+        .function-section {
+            display: none;
+        }
+        
+        /* 显示激活的功能区域 */
+        .function-section.active {
+            display: block;
+        }
     </style>
 </head>
 <body>
     <h1>人员管理系统</h1>
     
+    <!-- 导航按钮 -->
+    <div class="nav-buttons">
+        <button class="nav-btn active" onclick="showSection('add')">添加</button>
+        <button class="nav-btn" onclick="showSection('search')">查找</button>
+        <button class="nav-btn" onclick="showSection('delete')">删除</button>
+        <button class="nav-btn" onclick="showSection('update')">修改</button>
+    </div>
+    
     <div class="container">
         <!-- 添加人员表单 -->
-        <div class="form-section">
-            <h3>添加人员</h3>
-            <form action="/add_people" method="POST">
-                <div class="form-row">
-                    <label>姓名：</label>
-                    <input type="text" name="name" placeholder="姓名" required>
-                </div>
-                <div class="form-row">
-                    <label>年龄：</label>
-                    <input type="number" name="age" placeholder="年龄" required>
-                </div>
-                <div class="form-row">
-                    <label>性别：</label>
-                    <select name="gender" required>
-                        <option value="">选择性别</option>
-                        <option value="M">男</option>
-                        <option value="F">女</option>
-                    </select>
-                </div>
-                <div class="form-row">
-                    <label>编号：</label>
-                    <input type="number" name="number" placeholder="编号" required>
-                </div>
-                <div class="form-row">
-                    <label>身份：</label>
-                    <select name="role" required>
-                        <option value="">选择身份</option>
-                        <option value="Student">Student</option>
-                        <option value="Teacher">Teacher</option>
-                    </select>
-                </div>
-                <div class="form-row">
-                    <select name="input_status" required>
-                        <option value="">选择类型</option>
-                        <option value="grade">年级</option>
-                        <option value="position">职位</option>
-                    </select>
-                    <input type="text" name="status_value" placeholder="请输入年级或职位" required>
-                </div>
-                <div>
-                    <button type="submit">添加</button>
-                </div>
-            </form>
-        </div>
-        
-        <!-- 查找人员表单 -->
-        <div class="form-section">
-            <h3>查找人员</h3>
-            <form action="/find_people" method="POST">
-                <div>
-                    <select name="field_type" required>
-                        <option value="">选择查找字段</option>
-                        <option value="name">姓名</option>
-                        <option value="age">年龄</option>
-                        <option value="gender">性别</option>
-                        <option value="number">编号</option>
-                        <option value="role">身份</option>
-                        <option value="grade">年级</option>
-                        <option value="position">职位</option>
-                    </select>
-                </div>
-                <div>
-                    <input type="text" name="value_1" placeholder="查找值" required>
-                </div>
-                <div>
-                    <button type="submit">查找</button>
-                </div>
-            </form>
-        </div>
-        
-        <!-- 删除人员表单 -->
-        <div class="form-section">
-            <h3>删除人员</h3>
-            <form action="/find_people" method="POST" id="deleteSearchForm">
-                <div>
-                    <select name="field_type" required>
-                        <option value="">选择查找字段</option>
-                        <option value="name">姓名</option>
-                        <option value="age">年龄</option>
-                        <option value="gender">性别</option>
-                        <option value="number">编号</option>
-                        <option value="role">身份</option>
-                        <option value="grade">年级</option>
-                        <option value="position">职位</option>
-                    </select>
-                </div>
-                <div>
-                    <input type="text" name="value_1" placeholder="查找值" required>
-                </div>
-                <div>
-                    <button type="submit">查找</button>
-                </div>
-            </form>
-
-            <form action="/delete_people" method="POST" id="deleteForm" style="display: none; margin-top: 20px;" onsubmit="return confirmDelete()">
-                <input type="hidden" name="field_type" id="deleteFieldType">
-                <input type="hidden" name="value_1" id="deleteValue1">
-                <input type="hidden" name="list_number" id="deleteSelectedIndex" value="">
-                <div id="deleteFields">
-                    <h4>确认删除选中人员：</h4>
-                    <div style="padding: 10px; background-color: #ffe6e6; border: 1px solid #ffcccc; border-radius: 4px; margin-bottom: 10px;">
-                        <p><strong>姓名：</strong><span id="deletePersonName"></span></p>
-                        <p><strong>年龄：</strong><span id="deletePersonAge"></span></p>
-                        <p><strong>性别：</strong><span id="deletePersonGender"></span></p>
-                        <p><strong>编号：</strong><span id="deletePersonNumber"></span></p>
-                        <p><strong>身份：</strong><span id="deletePersonRole"></span></p>
-                        <p><strong>年级：</strong><span id="deletePersonGrade"></span></p>
-                        <p><strong>职位：</strong><span id="deletePersonPosition"></span></p>
+        <div class="function-section active" id="add-section">
+            <div class="form-section">
+                <h3>添加人员</h3>
+                <form action="/add_people" method="POST">
+                    <div class="form-row">
+                        <label>姓名：</label>
+                        <input type="text" name="name" placeholder="姓名" required>
                     </div>
-                    <div>
-                        <button type="submit" style="background-color: #f44336;">确认删除</button>
+                    <div class="form-row">
+                        <label>年龄：</label>
+                        <input type="number" name="age" placeholder="年龄" required>
                     </div>
-                </div>
-            </form>
-        </div>
-        
-        <!-- 修改人员表单 -->
-        <div class="form-section">
-            <h3>修改人员</h3>
-            <form action="/find_people" method="POST" id="searchForm">
-                <div>
-                    <select name="field_type" required>
-                        <option value="">选择查找字段</option>
-                        <option value="name">姓名</option>
-                        <option value="age">年龄</option>
-                        <option value="gender">性别</option>
-                        <option value="number">编号</option>
-                        <option value="role">身份</option>
-                        <option value="grade">年级</option>
-                        <option value="position">职位</option>
-                    </select>
-                </div>
-                <div>
-                    <input type="text" name="value_1" placeholder="查找值" required>
-                </div>
-                <div>
-                    <button type="submit">查找</button>
-                </div>
-            </form>
-
-            <form action="/update_people" method="POST" id="updateForm" style="display: none; margin-top: 20px;">
-                <input type="hidden" name="field_type" id="updateFieldType">
-                <input type="hidden" name="value_1" id="updateValue1">
-                <input type="hidden" name="list_number" id="selectedIndex" value="">
-                <div id="updateFields">
-                    <h4>修改选中人员信息：</h4>
-                    <div>
-                        <input type="text" name="name" id="updateName" placeholder="新姓名">
-                    </div>
-                    <div>
-                        <input type="number" name="age" id="updateAge" placeholder="新年龄">
-                    </div>
-                    <div>
-                        <select name="gender" id="updateGender">
+                    <div class="form-row">
+                        <label>性别：</label>
+                        <select name="gender" required>
                             <option value="">选择性别</option>
                             <option value="M">男</option>
                             <option value="F">女</option>
                         </select>
                     </div>
-                    <div>
-                        <input type="number" name="number" id="updateNumber" placeholder="新编号">
+                    <div class="form-row">
+                        <label>编号：</label>
+                        <input type="number" name="number" placeholder="编号" required>
                     </div>
-                    <div>
-                        <select name="role" id="updateRole">
+                    <div class="form-row">
+                        <label>身份：</label>
+                        <select name="role" required>
                             <option value="">选择身份</option>
                             <option value="Student">Student</option>
                             <option value="Teacher">Teacher</option>
                         </select>
                     </div>
-                    <div>
-                        <input type="text" name="grade" id="updateGrade" placeholder="新年级">
+                    <div class="form-row">
+                        <select name="input_status" required>
+                            <option value="">选择类型</option>
+                            <option value="grade">年级</option>
+                            <option value="position">职位</option>
+                        </select>
+                        <input type="text" name="status_value" placeholder="请输入年级或职位" required>
                     </div>
                     <div>
-                        <input type="text" name="position" id="updatePosition" placeholder="新职位">
+                        <button type="submit">添加</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- 查找人员表单 -->
+        <div class="function-section" id="search-section">
+            <div class="form-section">
+                <h3>查找人员</h3>
+                <form action="/find_people" method="POST">
+                    <div>
+                        <select name="field_type" required>
+                            <option value="">选择查找字段</option>
+                            <option value="name">姓名</option>
+                            <option value="age">年龄</option>
+                            <option value="gender">性别</option>
+                            <option value="number">编号</option>
+                            <option value="role">身份</option>
+                            <option value="grade">年级</option>
+                            <option value="position">职位</option>
+                        </select>
                     </div>
                     <div>
-                        <button type="submit">确认修改</button>
+                        <input type="text" name="value_1" placeholder="查找值" required>
                     </div>
-                </div>
-            </form>
+                    <div>
+                        <button type="submit">查找</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- 删除人员表单 -->
+        <div class="function-section" id="delete-section">
+            <div class="form-section">
+                <h3>删除人员</h3>
+                <form action="/find_people" method="POST" id="deleteSearchForm">
+                    <div>
+                        <select name="field_type" required>
+                            <option value="">选择查找字段</option>
+                            <option value="name">姓名</option>
+                            <option value="age">年龄</option>
+                            <option value="gender">性别</option>
+                            <option value="number">编号</option>
+                            <option value="role">身份</option>
+                            <option value="grade">年级</option>
+                            <option value="position">职位</option>
+                        </select>
+                    </div>
+                    <div>
+                        <input type="text" name="value_1" placeholder="查找值" required>
+                    </div>
+                    <div>
+                        <button type="submit">查找</button>
+                    </div>
+                </form>
+
+                <form action="/delete_people" method="POST" id="deleteForm" style="display: none; margin-top: 20px;" onsubmit="return confirmDelete()">
+                    <input type="hidden" name="field_type" id="deleteFieldType">
+                    <input type="hidden" name="value_1" id="deleteValue1">
+                    <input type="hidden" name="list_number" id="deleteSelectedIndex" value="">
+                    <div id="deleteFields">
+                        <h4>确认删除选中人员：</h4>
+                        <div style="padding: 10px; background-color: #ffe6e6; border: 1px solid #ffcccc; border-radius: 4px; margin-bottom: 10px;">
+                            <p><strong>姓名：</strong><span id="deletePersonName"></span></p>
+                            <p><strong>年龄：</strong><span id="deletePersonAge"></span></p>
+                            <p><strong>性别：</strong><span id="deletePersonGender"></span></p>
+                            <p><strong>编号：</strong><span id="deletePersonNumber"></span></p>
+                            <p><strong>身份：</strong><span id="deletePersonRole"></span></p>
+                            <p><strong>年级：</strong><span id="deletePersonGrade"></span></p>
+                            <p><strong>职位：</strong><span id="deletePersonPosition"></span></p>
+                        </div>
+                        <div>
+                            <button type="submit" style="background-color: #f44336;">确认删除</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- 修改人员表单 -->
+        <div class="function-section" id="update-section">
+            <div class="form-section">
+                <h3>修改人员</h3>
+                <form action="/find_people" method="POST" id="searchForm">
+                    <div>
+                        <select name="field_type" required>
+                            <option value="">选择查找字段</option>
+                            <option value="name">姓名</option>
+                            <option value="age">年龄</option>
+                            <option value="gender">性别</option>
+                            <option value="number">编号</option>
+                            <option value="role">身份</option>
+                            <option value="grade">年级</option>
+                            <option value="position">职位</option>
+                        </select>
+                    </div>
+                    <div>
+                        <input type="text" name="value_1" placeholder="查找值" required>
+                    </div>
+                    <div>
+                        <button type="submit">查找</button>
+                    </div>
+                </form>
+
+                <form action="/update_people" method="POST" id="updateForm" style="display: none; margin-top: 20px;">
+                    <input type="hidden" name="field_type" id="updateFieldType">
+                    <input type="hidden" name="value_1" id="updateValue1">
+                    <input type="hidden" name="list_number" id="selectedIndex" value="">
+                    <div id="updateFields">
+                        <h4>修改选中人员信息：</h4>
+                        <div>
+                            <input type="text" name="name" id="updateName" placeholder="新姓名">
+                        </div>
+                        <div>
+                            <input type="number" name="age" id="updateAge" placeholder="新年龄">
+                        </div>
+                        <div>
+                            <select name="gender" id="updateGender">
+                                <option value="">选择性别</option>
+                                <option value="M">男</option>
+                                <option value="F">女</option>
+                            </select>
+                        </div>
+                        <div>
+                            <input type="number" name="number" id="updateNumber" placeholder="新编号">
+                        </div>
+                        <div>
+                            <select name="role" id="updateRole">
+                                <option value="">选择身份</option>
+                                <option value="Student">Student</option>
+                                <option value="Teacher">Teacher</option>
+                            </select>
+                        </div>
+                        <div>
+                            <input type="text" name="grade" id="updateGrade" placeholder="新年级">
+                        </div>
+                        <div>
+                            <input type="text" name="position" id="updatePosition" placeholder="新职位">
+                        </div>
+                        <div>
+                            <button type="submit">确认修改</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
         </div>
         
         <!-- 人员数据表格 -->
@@ -257,8 +313,6 @@
             <h3>人员列表</h3>
             {% if search_performed %}
                 <div style="margin-bottom: 10px; padding: 8px; background-color: #f0f0f0; border-radius: 4px;">
-                    <!-- 在查询结果显示区域添加 -->
-                    <!-- 问题代码 -->
                     {% if people_data %}
                     <input type="hidden" id="currentSearchFieldType" value="{{ search_field }}">
                     <input type="hidden" id="currentSearchValue" value="{{ search_value }}">
@@ -307,6 +361,30 @@
         </div>
     </div>
     <script>
+        // 新增的导航功能
+        function showSection(sectionName) {
+            // 隐藏所有功能区域
+            const sections = document.querySelectorAll('.function-section');
+            sections.forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // 移除所有按钮的激活状态
+            const buttons = document.querySelectorAll('.nav-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // 显示选中的功能区域
+            const targetSection = document.getElementById(sectionName + '-section');
+            if (targetSection) {
+                targetSection.classList.add('active');
+            }
+            
+            // 激活对应的按钮
+            event.target.classList.add('active');
+        }
+        
         function confirmDelete() {
             const personName = document.getElementById('deletePersonName').textContent;
             const confirmMessage = `您确定要删除人员"${personName}"吗？此操作不可撤销。`;
