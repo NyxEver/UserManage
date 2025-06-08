@@ -1,14 +1,25 @@
 import mysql.connector
 from Snowflake import Snowflake
+import os
 
 snowflake = Snowflake(worker_id=1, data_center_id=1)
 
+"""
 mydb = mysql.connector.connect(  # 数据库链接
     host="127.0.0.1"
     , user="root"
-    , password="*"
-    , database="*"
+    , password="2397947891"
+    , database="student_db"
 )
+
+"""
+mydb = mysql.connector.connect(
+    host=os.getenv('DB_HOST', '127.0.0.1'),
+    user=os.getenv('DB_USER', 'root'),
+    password=os.getenv('DB_PASSWORD', '2397947891'),
+    database=os.getenv('DB_NAME', 'student_db')
+)
+
 person_cursor = mydb.cursor()
 person_cursor.execute("CREATE TABLE if not exists persons (ID BIGINT not null PRIMARY KEY,"
                       "number int(8) not null UNIQUE,"
