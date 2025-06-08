@@ -65,63 +65,6 @@ def person_delete(person):
         print(f"数据库错误: {error}")
         return False
 
-
-def update_value(person_update_dict, new_values):
-    try:
-        person_dict = person_update_dict.copy()
-        person_dict['name'] = new_values[0]
-        person_dict['age'] = new_values[1]
-        person_dict['gender'] = new_values[2]
-        person_dict['number'] = new_values[3]
-        if 'grade' in person_dict:
-            person_dict['grade'] = new_values[4]
-        elif 'position' in person_dict:
-            person_dict['position'] = new_values[4]
-        print("修改成功")
-        return person_dict
-    except Exception as e:
-        print(f"修改失败: {e}")
-        return None
-
-
-def person_update(person_change_dict, person_dict):
-    try:
-        original_value = person_change_dict['number']
-        new_value = person_dict['number']
-        person_change_cursor = mydb.cursor()
-        if original_value != new_value:
-            person_change_cursor.execute(f"DELETE students,teachers FROM students JOIN teachers on "
-                                         f"students.number=teachers.number where student.number = %s",
-                                         (original_value,))
-            if 'grade' in person_dict:
-                person_change_cursor.execute(
-                    "INSERT INTO persons (number, name, age, gender,grade) VALUES (%s, %s, %s, %s, %s)",
-                    (new_value, person_dict['name'], person_dict['age'], person_dict['gender'], person_dict['grade']))
-            elif 'position' in person_dict:
-                person_change_cursor.execute(
-                    "INSERT INTO persons (number, name, age, gender, position) VALUES (%s, %s, %s, %s, %s)",
-                    (
-                    new_value, person_dict['name'], person_dict['age'], person_dict['gender'], person_dict['position']))
-        else:
-            if 'grade' in person_dict:
-                person_change_cursor.execute(
-                    f"UPDATE persons SET name = %s,age=%s,gender=%s, grade=%s where number = %s",
-                    (person_dict['name'], person_dict['age'], person_dict['gender'], person_dict['grade'],
-                     original_value))
-            elif 'position' in person_dict:
-                person_change_cursor.execute(
-                    f"UPDATE persons SET name = %s,age=%s,gender=%s, position=%s where number = %s",
-                    (person_dict['name'], person_dict['age'], person_dict['gender'], person_dict['position'],
-                     original_value))
-        mydb.commit()
-        print("修改成功")
-        person_change_cursor.close()
-        return True
-
-    except mysql.connector.Error as error:
-        print(error)
-        return False
-
 def get_person_id(person):
     try:
         get_person_id_cursor = mydb.cursor()

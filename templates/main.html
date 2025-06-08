@@ -110,15 +110,15 @@
     
     <!-- 导航按钮 -->
     <div class="nav-buttons">
-        <button class="nav-btn active" onclick="showSection('add')">添加</button>
-        <button class="nav-btn" onclick="showSection('search')">查找</button>
-        <button class="nav-btn" onclick="showSection('delete')">删除</button>
-        <button class="nav-btn" onclick="showSection('update')">修改</button>
+        <button class="nav-btn" data-section="add" onclick="showSection('add')">添加</button>
+        <button class="nav-btn" data-section="search" onclick="showSection('search')">查找</button>
+        <button class="nav-btn" data-section="delete" onclick="showSection('delete')">删除</button>
+        <button class="nav-btn" data-section="update" onclick="showSection('update')">修改</button>
     </div>
     
     <div class="container">
         <!-- 添加人员表单 -->
-        <div class="function-section active" id="add-section">
+        <div class="function-section" id="add-section">
             <div class="form-section">
                 <h3>添加人员</h3>
                 <form action="/add_people" method="POST">
@@ -271,33 +271,40 @@
                     <input type="hidden" name="list_number" id="selectedIndex" value="">
                     <div id="updateFields">
                         <h4>修改选中人员信息：</h4>
-                        <div>
+                        <div class="form-row">
+                            <label>姓名：</label>
                             <input type="text" name="name" id="updateName" placeholder="新姓名">
                         </div>
-                        <div>
+                        <div class="form-row">
+                            <label>年龄：</label>
                             <input type="number" name="age" id="updateAge" placeholder="新年龄">
                         </div>
-                        <div>
+                        <div class="form-row">
+                            <label>性别：</label>
                             <select name="gender" id="updateGender">
                                 <option value="">选择性别</option>
                                 <option value="M">男</option>
                                 <option value="F">女</option>
                             </select>
                         </div>
-                        <div>
+                        <div class="form-row">
+                            <label>编号：</label>
                             <input type="number" name="number" id="updateNumber" placeholder="新编号">
                         </div>
-                        <div>
+                        <div class="form-row">
+                            <label>身份：</label>
                             <select name="role" id="updateRole">
                                 <option value="">选择身份</option>
                                 <option value="Student">Student</option>
                                 <option value="Teacher">Teacher</option>
                             </select>
                         </div>
-                        <div>
+                        <div class="form-row">
+                            <label>年级：</label>
                             <input type="text" name="grade" id="updateGrade" placeholder="新年级">
                         </div>
-                        <div>
+                        <div class="form-row">
+                            <label>职位：</label>
                             <input type="text" name="position" id="updatePosition" placeholder="新职位">
                         </div>
                         <div>
@@ -361,8 +368,18 @@
         </div>
     </div>
     <script>
-        // 新增的导航功能
+        // 页面加载时恢复之前选择的标签
+        document.addEventListener('DOMContentLoaded', function() {
+            // 从localStorage获取上次选择的标签，如果没有则默认为'add'
+            const savedSection = localStorage.getItem('activeSection') || 'add';
+            showSection(savedSection);
+        });
+        
+        // 修改后的导航功能，增加状态保存
         function showSection(sectionName) {
+            // 保存当前选择的标签到localStorage
+            localStorage.setItem('activeSection', sectionName);
+            
             // 隐藏所有功能区域
             const sections = document.querySelectorAll('.function-section');
             sections.forEach(section => {
@@ -382,7 +399,10 @@
             }
             
             // 激活对应的按钮
-            event.target.classList.add('active');
+            const targetButton = document.querySelector(`[data-section="${sectionName}"]`);
+            if (targetButton) {
+                targetButton.classList.add('active');
+            }
         }
         
         function confirmDelete() {
