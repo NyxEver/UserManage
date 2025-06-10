@@ -8,8 +8,8 @@ snowflake = Snowflake(worker_id=1, data_center_id=1)
 mydb = mysql.connector.connect(  # 数据库链接
     host="127.0.0.1"
     , user="root"
-    , password="2397947891"
-    , database="student_db"
+    , password="*"
+    , database="*"
 )
 
 """

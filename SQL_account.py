@@ -1,12 +1,13 @@
+import os
 import mysql.connector
 
-mydb = mysql.connector.connect(#数据库链接
-    host="127.0.0.1"
-    ,user="root"
-    ,password="*"
-    ,database="*"
+mydb = mysql.connector.connect(
+    host=os.getenv('DB_HOST', '127.0.0.1'), #os.getenv()：获取指定环境变量的值
+    user=os.getenv('DB_USER', 'root'),
+    password=os.getenv('DB_PASSWORD', '2397947891'),
+    database=os.getenv('DB_NAME', 'student_db')
 )
-print(mydb,"数据库连接成功!")
+
 
 account_cursor = mydb.cursor()#创建游标
 account_cursor.execute("CREATE TABLE if not exists account (username VARCHAR(20) PRIMARY KEY,"#执行创建表的SQL语句

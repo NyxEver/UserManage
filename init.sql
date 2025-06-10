@@ -9,10 +9,6 @@ CREATE TABLE IF NOT EXISTS account (
     identify CHAR(1) NOT NULL
 );
 
--- 插入默认管理员账户
-INSERT IGNORE INTO account (username, password, identify) 
-VALUES ('admin', 'admin123', '0');
-
 -- 创建人员表
 CREATE TABLE IF NOT EXISTS persons (
     ID BIGINT NOT NULL PRIMARY KEY,
@@ -24,7 +20,3 @@ CREATE TABLE IF NOT EXISTS persons (
     grade VARCHAR(20),
     position VARCHAR(20)
 );
-
--- 创建视图
-CREATE OR REPLACE VIEW persons_view AS 
-SELECT number, name, age, gender, role, grade, position FROM persons;
