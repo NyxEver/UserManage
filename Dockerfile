@@ -1,5 +1,5 @@
 # 使用Python官方镜像
-FROM python:3.10-slim
+FROM python:3.10.10-slim
 
 # 设置工作目录
 WORKDIR /app
@@ -15,10 +15,10 @@ RUN apt-get update && apt-get install -y \
 COPY requirements.txt .
 
 # 安装Python依赖
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 # 复制应用代码
-COPY . .
+COPY . /app
 
 # 暴露端口
 EXPOSE 5000
@@ -30,5 +30,3 @@ ENV FLASK_ENV=production
 # 启动命令
 CMD ["python", "app.py"]
 LABEL authors="Shen"
-
-ENTRYPOINT ["top", "-b"]
