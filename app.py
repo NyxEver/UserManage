@@ -1,10 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for
 from DatabaseManager import all_person
-from SQL_account import verify_account, register_account
-
-from Person import Person
-from Student import Student
-from Teacher import Teacher
+from User_Template import User_Template
+from User import User
 
 print("2025.05.26")
 print("管理系统")
@@ -20,22 +17,22 @@ def index():
 
 @app.route('/account_verify', methods=['POST'])
 def account_verify():
-    username = request.form['username']
+    number = request.form['username']
     password = request.form['password']
-    result_verify = verify_account(username, password)
+    result_verify = User_Template.verify_user_account(number, password)
     if result_verify:
-        return redirect(url_for('welcome', username=username))
+        return redirect(url_for('welcome', username=number))
     else:
         return "账号或密码错误"
 
 
 @app.route('/account_register', methods=['POST'])
 def account_register():
-    username = request.form['username']
+    number = request.form['username']
     password = request.form['password']
-    result_register = register_account(username, password)
+    user=User(number, password,'name',1,'M', 'user', None, None)
+    result_register = User_Template.register_account(user)
     if result_register:
-        # return redirect(url_for('index', register_success='true', message="注册成功"))
         return redirect(url_for('index', message="注册成功"))
     else:
         return "注册失败"
@@ -56,18 +53,16 @@ def main():
 def add_people():
     try:
         number = request.form['number']
+        #password = request.form['password']
+        password = request.form.get('password', 'default123')
         name = request.form['name']
         age = int(request.form['age'])
         gender = request.form['gender']
         role = request.form['role']
-        input_status = request.form['input_status']
-        status_value = request.form['status_value']
-        if input_status == 'grade':
-            student = Student(number, name, age, gender, role, status_value)
-            result_add = student.save_SQL()
-        elif input_status == 'position':
-            teacher = Teacher(number, name, age, gender, role, status_value)
-            result_add = teacher.save_SQL()
+        grade = request.form['grade']
+        position = request.form['position']
+        user = User(number, password, name, age, gender, role, grade, position)
+        result_add = user.save_SQL()
         if result_add:
             return redirect(url_for('main'))
         else:
@@ -81,13 +76,12 @@ def delete_people():
     field_type = request.form['field_type']
     del_value = request.form['value_1']
     list_number = request.form.get('list_number')
-    person_find_data = Person.find_SQL(field_type,del_value)
+    person_find_data = User_Template.find_SQL(field_type,del_value)
+    if not person_find_data:
+        return "未找到符合条件的记录"
     list_number = int(list_number)
     person_data = person_find_data[list_number]
-    if person_data[4]=='Student':
-        person_obj = Student(person_data[0], person_data[1], person_data[2], person_data[3], person_data[4], person_data[5])
-    elif person_data[4]=='Teacher':
-        person_obj = Teacher(person_data[0], person_data[1], person_data[2], person_data[3], person_data[4], person_data[5])
+    person_obj = User(person_data[0], person_data[1], person_data[2], person_data[3], person_data[4], person_data[5], person_data[6], person_data[7])
     result_delete = person_obj.delete_SQL()
     if result_delete:
         return redirect(url_for('main'))
@@ -98,19 +92,19 @@ def delete_people():
 def update_people():
     field_type = request.form.get('field_type')
     value_find = request.form.get('value_1')
-    person_find_data = Person.find_SQL(field_type, value_find)
+    person_find_data = User_Template.find_SQL(field_type, value_find)
+    if not person_find_data:
+        return "未找到符合条件的记录"
     list_number = request.form.get('list_number')
     list_number = int(list_number)
     person_data = person_find_data[list_number]
-    if person_data[4]=='Student':
-        original_person_obj = Student(person_data[0], person_data[1], person_data[2], person_data[3], person_data[4], person_data[5], person_data[6])
-    elif person_data[4]=='Teacher':
-        original_person_obj = Teacher(person_data[0], person_data[1], person_data[2], person_data[3], person_data[4], person_data[5], person_data[6])
-    original_dict = dict(zip(['number', 'name', 'age', 'gender','role','grade','position'], person_data))
+    original_person_obj = User(person_data[0], person_data[1], person_data[2], person_data[3], person_data[4], person_data[5], person_data[6], person_data[7])
+    original_dict = dict(zip(['number','password', 'name', 'age', 'gender','role','grade','position'], person_data))
     if not original_dict:
         return "未找到要修改的记录"
     new_values_list = [
-        int(request.form.get('number', original_dict['number'])),# 如果未提供则使用原值
+        request.form.get('number', original_dict['number']),# 如果未提供则使用原值
+        request.form.get('password', original_dict['password']),
         request.form.get('name', original_dict['name']),
         int(request.form.get('age', original_dict['age'])),
         request.form.get('gender', original_dict['gender']),
@@ -118,12 +112,8 @@ def update_people():
         request.form.get('grade', original_dict['grade']),
         request.form.get('position', original_dict['position']),
     ]
-    if new_values_list[4] == 'Student':
-        person_obj = Student(new_values_list[0], new_values_list[1], new_values_list[2], new_values_list[3], new_values_list[4],
-                             new_values_list[5], new_values_list[6])
-    elif new_values_list[4] == 'Teacher':
-        person_obj = Teacher(new_values_list[0], new_values_list[1], new_values_list[2], new_values_list[3], new_values_list[4],
-                             new_values_list[5], new_values_list[6])
+    person_obj = User(new_values_list[0], new_values_list[1], new_values_list[2], new_values_list[3], new_values_list[4],
+                         new_values_list[5], new_values_list[6],new_values_list[7])
     get_id=original_person_obj.get_person_ID()
     result_update= person_obj.update_SQL(get_id)
     if result_update:
@@ -136,7 +126,7 @@ def update_people():
 def find_people():
     field_type = request.form['field_type']
     value_1 = request.form['value_1']
-    result_find = Person.find_SQL(field_type, value_1)
+    result_find = User_Template.find_SQL(field_type, value_1)
     if result_find:
         #    return redirect(url_for('main'))
         return render_template('main.html', results=result_find, search_performed=True,
@@ -147,4 +137,4 @@ def find_people():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=False)
+    app.run(host='0.0.0.0', port=5000, debug=True)

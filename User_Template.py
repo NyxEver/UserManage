@@ -1,10 +1,9 @@
 from abc import ABC, abstractmethod
-from DatabaseManager import person_add, person_delete, person_update, person_find, get_person_id
+from DatabaseManager import person_add, person_delete, person_update, person_find, get_person_id, verify_account, register_account
 
-
-class Person(ABC):
-    def __init__(self,number,name,age,gender,role,ID=None):
-        if not name:#验证名字是否合法
+class User_Template(ABC):
+    def __init__(self,number,password,name,age,gender,role, grade, position, ID=None):
+        if not name and role != 'root':#验证名字是否合法
             raise ValueError("你啥都没输入我咋记住你呢？")
         if age < 0 or age>=150:#验证年龄是否合法
             raise ValueError ("你输的那是人类的年龄吗？",age)
@@ -13,10 +12,13 @@ class Person(ABC):
 
         self.ID = ID
         self.number = number
+        self.password = password
         self.name = name
         self.age = age
         self.gender = gender
         self.role = role
+        self.grade = grade
+        self.position = position
     def save_SQL(self):
         result_save = person_add(self)
         return result_save
@@ -25,14 +27,13 @@ class Person(ABC):
         return result_delete
 
     def update_SQL(self,get_id):
-        #updated_dict = update_value(result_dict, new_values)
         result_update = person_update(self,get_id)
         return result_update
 
     @staticmethod
     def find_SQL(field_type, find_value):
-        result = person_find(field_type, find_value)
-        return result
+        result_find = person_find(field_type, find_value)
+        return result_find
     def get_person_ID(self):
         result_ID = get_person_id(self)
         return result_ID
@@ -40,3 +41,12 @@ class Person(ABC):
         pass
     def get_table_type(self):
         pass
+
+    def register_account(self):
+        result_register = register_account(self)
+        return result_register
+
+    @staticmethod
+    def verify_user_account(number, password):
+        result_verify = verify_account(number, password)
+        return result_verify

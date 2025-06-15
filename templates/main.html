@@ -34,9 +34,10 @@
         th {
             background-color: #f2f2f2;
         }
-        input[type="text"], input[type="number"] {
+        input[type="text"], input[type="number"], input[type="password"], select {
             padding: 5px;
             margin: 5px 0;
+            width: 200px;
         }
         button {
             padding: 5px 10px;
@@ -48,10 +49,6 @@
         }
         button:hover {
             background-color: #45a049;
-        }
-        select {
-            padding: 5px;
-            margin: 5px 0;
         }
         .form-row {
             display: flex;
@@ -140,23 +137,29 @@
                     </div>
                     <div class="form-row">
                         <label>编号：</label>
-                        <input type="number" name="number" placeholder="编号" required>
+                        <input type="text" name="number" placeholder="编号" required>
+                    </div>
+                    <div class="form-row">
+                        <label>密码：</label>
+                        <input type="password" name="password" placeholder="密码" required>
                     </div>
                     <div class="form-row">
                         <label>身份：</label>
                         <select name="role" required>
                             <option value="">选择身份</option>
-                            <option value="Student">Student</option>
-                            <option value="Teacher">Teacher</option>
+                            <option value="user">user</option>
+                            <option value="root">root</option>
                         </select>
                     </div>
                     <div class="form-row">
-                        <select name="input_status" required>
+                        <select name="input_status" required onchange="handleStatusChange(this)">
                             <option value="">选择类型</option>
                             <option value="grade">年级</option>
                             <option value="position">职位</option>
                         </select>
-                        <input type="text" name="status_value" placeholder="请输入年级或职位" required>
+                        <input type="text" name="status_value" id="statusValue" placeholder="请输入年级或职位" required>
+                        <input type="hidden" name="grade" id="gradeValue" value="None">
+                        <input type="hidden" name="position" id="positionValue" value="None">
                     </div>
                     <div>
                         <button type="submit">添加</button>
@@ -177,7 +180,6 @@
                             <option value="age">年龄</option>
                             <option value="gender">性别</option>
                             <option value="number">编号</option>
-                            <option value="role">身份</option>
                             <option value="grade">年级</option>
                             <option value="position">职位</option>
                         </select>
@@ -204,7 +206,6 @@
                             <option value="age">年龄</option>
                             <option value="gender">性别</option>
                             <option value="number">编号</option>
-                            <option value="role">身份</option>
                             <option value="grade">年级</option>
                             <option value="position">职位</option>
                         </select>
@@ -252,7 +253,6 @@
                             <option value="age">年龄</option>
                             <option value="gender">性别</option>
                             <option value="number">编号</option>
-                            <option value="role">身份</option>
                             <option value="grade">年级</option>
                             <option value="position">职位</option>
                         </select>
@@ -289,14 +289,18 @@
                         </div>
                         <div class="form-row">
                             <label>编号：</label>
-                            <input type="number" name="number" id="updateNumber" placeholder="新编号">
+                            <input type="text" name="number" id="updateNumber" placeholder="新编号">
+                        </div>
+                        <div class="form-row">
+                            <label>密码：</label>
+                            <input type="password" name="password" id="updatePassword" placeholder="新密码">
                         </div>
                         <div class="form-row">
                             <label>身份：</label>
                             <select name="role" id="updateRole">
                                 <option value="">选择身份</option>
-                                <option value="Student">Student</option>
-                                <option value="Teacher">Teacher</option>
+                                <option value="user">user</option>
+                                <option value="root">root</option>
                             </select>
                         </div>
                         <div class="form-row">
@@ -336,6 +340,7 @@
                 <tr>
                     <th>选择</th>
                     <th>编号</th>
+                    <th>密码</th>
                     <th>姓名</th>
                     <th>年龄</th>
                     <th>性别</th>
@@ -351,17 +356,18 @@
                                 <input type="radio" name="selectPerson" value="{{ loop.index0 }}" onchange="handleSelection(this)">
                             </td>
                             <td>{{ person[0] }}</td>
-                            <td>{{ person[1] }}</td>
-                            <td>{{ person[2] }}</td>
-                            <td>{{ person[3] }}</td>
+                            <td>{{ person[1] if person|length > 1 else '' }}</td>
+                            <td>{{ person[2] if person|length > 2 else '' }}</td>
+                            <td>{{ person[3] if person|length > 3 else '' }}</td>
                             <td>{{ person[4] if person|length > 4 else '' }}</td>
                             <td>{{ person[5] if person|length > 5 else '' }}</td>
                             <td>{{ person[6] if person|length > 6 else '' }}</td>
+                            <td>{{ person[7] if person|length > 7 else '' }}</td>
                         </tr>
                     {% endfor %}
                 {% else %}
                     <tr>
-                        <td colspan="8" style="text-align: center;">暂无数据</td>
+                        <td colspan="9" style="text-align: center;">暂无数据</td>
                     </tr>
                 {% endif %}
             </table>
@@ -418,26 +424,26 @@
             // 显示修改表单
             document.getElementById('updateForm').style.display = 'block';
             
-            // 获取查询表单中的值
-            const searchFieldType = document.querySelector('#searchForm select[name="field_type"]').value;
-            const searchValue = document.querySelector('#searchForm input[name="value_1"]').value;
+            // 使用保存的搜索条件，而不是从表单中重新获取
+            const currentSearchFieldType = document.getElementById('currentSearchFieldType')?.value || "name";
+            const currentSearchValue = document.getElementById('currentSearchValue')?.value || cells[3].textContent.trim();
             
-            // 如果查询表单有值，则使用查询表单的值；否则默认使用"number"作为查询字段，使用编号作为查询值
-            document.getElementById('updateFieldType').value = searchFieldType || "number";
-            document.getElementById('updateValue1').value = searchValue || cells[1].textContent.trim();
+            // 设置更新表单的搜索条件
+            document.getElementById('updateFieldType').value = currentSearchFieldType;
+            document.getElementById('updateValue1').value = currentSearchValue;
             
             // 设置选中的索引
             document.getElementById('selectedIndex').value = radio.value;
             
-            // 填充原有数据到修改表单中
+            // 填充原有数据到修改表单中（根据新的列顺序调整）
             document.getElementById('updateNumber').value = cells[1].textContent.trim();
-            document.getElementById('updateName').value = cells[2].textContent.trim();
-            document.getElementById('updateAge').value = cells[3].textContent.trim();
-            // 修正数据映射
-            document.getElementById('updateGender').value = cells[4].textContent.trim(); // 应该是 cells[3]
-            document.getElementById('updateRole').value = cells[5].textContent.trim();   // 应该是 cells[4]
-            document.getElementById('updateGrade').value = cells[6] ? cells[6].textContent.trim() : '';
-            document.getElementById('updatePosition').value = cells[7] ? cells[7].textContent.trim() : '';
+            document.getElementById('updatePassword').value = cells[2].textContent.trim(); // 添加密码字段
+            document.getElementById('updateName').value = cells[3].textContent.trim();
+            document.getElementById('updateAge').value = cells[4].textContent.trim();
+            document.getElementById('updateGender').value = cells[5].textContent.trim();
+            document.getElementById('updateRole').value = cells[6].textContent.trim();
+            document.getElementById('updateGrade').value = cells[7] ? cells[7].textContent.trim() : '';
+            document.getElementById('updatePosition').value = cells[8] ? cells[8].textContent.trim() : '';
             
             // 处理删除表单
             handleDeleteSelection(radio);
@@ -450,6 +456,37 @@
             });
         }
         
+        function handleStatusChange(selectElement) {
+            const statusValue = document.getElementById('statusValue');
+            const gradeValue = document.getElementById('gradeValue');
+            const positionValue = document.getElementById('positionValue');
+            
+            // 重置所有值
+            gradeValue.value = 'None';
+            positionValue.value = 'None';
+            statusValue.value = '';
+            
+            if (selectElement.value === 'grade') {
+                statusValue.placeholder = '请输入年级';
+                statusValue.oninput = function() {
+                    gradeValue.value = this.value || 'None';
+                    positionValue.value = 'None';
+                };
+            } else if (selectElement.value === 'position') {
+                statusValue.placeholder = '请输入职位';
+                statusValue.oninput = function() {
+                    positionValue.value = this.value || 'None';
+                    gradeValue.value = 'None';
+                };
+            }
+        }
+        
+        // 页面加载时初始化隐藏字段
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化隐藏字段
+            document.getElementById('gradeValue').value = 'None';
+            document.getElementById('positionValue').value = 'None';
+        });
         function handleDeleteSelection(radio) {
             const row = radio.closest('tr');
             const cells = row.cells;
@@ -463,21 +500,21 @@
             
             // 直接使用当前搜索条件，移除不必要的代码
             const currentSearchFieldType = document.getElementById('currentSearchFieldType')?.value || "name";
-            const currentSearchValue = document.getElementById('currentSearchValue')?.value || cells[2].textContent.trim();
+            const currentSearchValue = document.getElementById('currentSearchValue')?.value || cells[3].textContent.trim();
             
             // 设置删除表单的隐藏字段
             document.getElementById('deleteFieldType').value = currentSearchFieldType;
             document.getElementById('deleteValue1').value = currentSearchValue;
             document.getElementById('deleteSelectedIndex').value = radio.value;
             
-            // 显示要删除的人员信息
+            // 显示要删除的人员信息（根据新的列顺序调整）
             document.getElementById('deletePersonNumber').textContent = cells[1].textContent.trim();
-            document.getElementById('deletePersonName').textContent = cells[2].textContent.trim();
-            document.getElementById('deletePersonAge').textContent = cells[3].textContent.trim();
-            document.getElementById('deletePersonGender').textContent = cells[4].textContent.trim();
-            document.getElementById('deletePersonRole').textContent = cells[5] ? cells[5].textContent.trim() : '';
-            document.getElementById('deletePersonGrade').textContent = cells[6] ? cells[6].textContent.trim() : '';
-            document.getElementById('deletePersonPosition').textContent = cells[7] ? cells[7].textContent.trim() : '';
+            document.getElementById('deletePersonName').textContent = cells[3].textContent.trim();
+            document.getElementById('deletePersonAge').textContent = cells[4].textContent.trim();
+            document.getElementById('deletePersonGender').textContent = cells[5].textContent.trim();
+            document.getElementById('deletePersonRole').textContent = cells[6] ? cells[6].textContent.trim() : '';
+            document.getElementById('deletePersonGrade').textContent = cells[7] ? cells[7].textContent.trim() : '';
+            document.getElementById('deletePersonPosition').textContent = cells[8] ? cells[8].textContent.trim() : '';
         }
     </script>
 </body>
