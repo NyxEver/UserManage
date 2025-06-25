@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>远程终端控制</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background-color: #1e1e1e;
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .connection-panel {
+            background-color: #2d2d2d;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .terminal {
+            background-color: #000000;
+            border: 1px solid #444;
+            border-radius: 8px;
+            padding: 15px;
+            height: 500px;
+            overflow-y: auto;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+        .input-group label {
+            min-width: 80px;
+            color: #cccccc;
+        }
+        .input-group input {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #555;
+            border-radius: 4px;
+            background-color: #333;
+            color: #fff;
+        }
+        .command-input {
+            display: flex;
+            margin-top: 10px;
+        }
+        .command-input input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #555;
+            border-radius: 4px 0 0 4px;
+            background-color: #333;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+        }
+        .command-input button {
+            padding: 10px 20px;
+            border: 1px solid #555;
+            border-left: none;
+            border-radius: 0 4px 4px 0;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+        .command-input button:hover {
+            background-color: #45a049;
+        }
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        .status.connected {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .command-line {
+            margin-bottom: 10px;
+        }
+        .command {
+            color: #00ff00;
+            font-weight: bold;
+        }
+        .output {
+            color: #ffffff;
+            white-space: pre-wrap;
+        }
+        .error {
+            color: #ff6b6b;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>远程终端控制</h1>
+        
+        <!-- SSH连接面板 -->
+        <div class="connection-panel" id="connectionPanel">
+            <h3>SSH连接设置</h3>
+            <div class="input-group">
+                <label>服务器地址:</label>
+                <input type="text" id="hostname" placeholder="例如: 192.168.1.100" value="localhost">
+            </div>
+            <div class="input-group">
+                <label>端口:</label>
+                <input type="number" id="port" placeholder="22" value="22">
+            </div>
+            <div class="input-group">
+                <label>用户名:</label>
+                <input type="text" id="username" placeholder="root">
+            </div>
+            <div class="input-group">
+                <label>密码:</label>
+                <input type="password" id="password" placeholder="密码">
+            </div>
+            <div class="input-group">
+                <button class="btn btn-primary" onclick="connectSSH()">连接</button>
+                <button class="btn btn-danger" onclick="disconnectSSH()">断开连接</button>
+            </div>
+        </div>
+
+        <!-- 状态显示 -->
+        <div id="status"></div>
+
+        <!-- 终端显示区域 -->
+        <div class="terminal" id="terminal">
+            <div class="output">欢迎使用远程终端控制系统</div>
+            <div class="output">请先配置SSH连接信息并点击连接按钮</div>
+        </div>
+
+        <!-- 命令输入区域 -->
+        <div class="command-input">
+            <input type="text" id="commandInput" placeholder="输入命令..." disabled>
+            <button onclick="executeCommand()" id="executeBtn" disabled>执行</button>
+        </div>
+    </div>
+
+    <script>
+        // 初始化Socket.IO连接
+        const socket = io();
+        let isConnected = false;
+
+        // Socket.IO事件处理
+        socket.on('connect', function() {
+            console.log('已连接到服务器');
+            showStatus('已连接到Web服务器', 'connected');
+        });
+
+        socket.on('disconnect', function() {
+            console.log('与服务器断开连接');
+            showStatus('与Web服务器断开连接', 'error');
+            isConnected = false;
+            updateUI();
+        });
+
+        socket.on('status', function(data) {
+            addToTerminal(data.message, 'output');
+        });
+
+        socket.on('ssh_connected', function(data) {
+            showStatus(data.msg, 'connected');
+            addToTerminal('SSH连接成功: ' + data.msg, 'output');
+            isConnected = true;
+            updateUI();
+        });
+
+        socket.on('ssh_error', function(data) {
+            showStatus('SSH连接失败: ' + data.error, 'error');
+            addToTerminal('SSH连接错误: ' + data.error, 'error');
+            isConnected = false;
+            updateUI();
+        });
+
+        socket.on('command_result', function(data) {
+            addToTerminal('$ ' + data.command, 'command');
+            if (data.output) {
+                addToTerminal(data.output, 'output');
+            }
+            if (data.error) {
+                addToTerminal(data.error, 'error');
+            }
+            addToTerminal('命令执行完成 (退出码: ' + data.exit_status + ')', 'output');
+        });
+
+        socket.on('command_error', function(data) {
+            addToTerminal('命令执行错误: ' + data.error, 'error');
+        });
+
+        // 连接SSH
+        function connectSSH() {
+            const hostname = document.getElementById('hostname').value;
+            const port = document.getElementById('port').value;
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (!hostname || !username || !password) {
+                alert('请填写完整的连接信息');
+                return;
+            }
+
+            showStatus('正在连接SSH...', 'connected');
+            addToTerminal('正在连接到 ' + username + '@' + hostname + ':' + port, 'output');
+
+            socket.emit('ssh_connect', {
+                hostname: hostname,
+                port: parseInt(port),
+                username: username,
+                password: password
+            });
+        }
+
+        // 断开SSH连接
+        function disconnectSSH() {
+            socket.disconnect();
+            socket.connect();
+            isConnected = false;
+            updateUI();
+            showStatus('已断开SSH连接', 'error');
+            addToTerminal('SSH连接已断开', 'output');
+        }
+
+        // 执行命令
+        function executeCommand() {
+            const command = document.getElementById('commandInput').value.trim();
+            if (!command) {
+                return;
+            }
+
+            if (!isConnected) {
+                alert('请先建立SSH连接');
+                return;
+            }
+
+            socket.emit('execute_command', {
+                command: command
+            });
+
+            document.getElementById('commandInput').value = '';
+        }
+
+        // 添加内容到终端
+        function addToTerminal(text, type) {
+            const terminal = document.getElementById('terminal');
+            const div = document.createElement('div');
+            div.className = 'command-line';
+            
+            const span = document.createElement('span');
+            span.className = type;
+            span.textContent = text;
+            
+            div.appendChild(span);
+            terminal.appendChild(div);
+            
+            // 自动滚动到底部
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        // 显示状态
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = 'status ' + type;
+        }
+
+        // 更新UI状态
+        function updateUI() {
+            const commandInput = document.getElementById('commandInput');
+            const executeBtn = document.getElementById('executeBtn');
+            
+            commandInput.disabled = !isConnected;
+            executeBtn.disabled = !isConnected;
+        }
+
+        // 回车键执行命令
+        document.getElementById('commandInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                executeCommand();
+            }
+        });
+
+        // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            updateUI();
+        });
+    </script>
+</body>
+</html>

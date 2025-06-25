@@ -2,18 +2,20 @@ from flask import Flask, render_template, request, redirect, url_for
 from DatabaseManager import all_person
 from User_Template import User_Template
 from User import User
+from flask_socketio import SocketIO, emit
+import paramiko
+import time
 
-print("2025.05.26")
+print("2025.06.16")
 print("管理系统")
 print("SQL+FLASK+HTML storage version v0.4")
 
 app = Flask(__name__)
-
+socketio = SocketIO(app,cors_allowed_origins="*")
 
 @app.route('/')
 def index():
     return render_template('index.html')
-
 
 @app.route('/account_verify', methods=['POST'])
 def account_verify():
@@ -135,6 +137,67 @@ def find_people():
         return render_template('main.html', results=[], search_performed=True,
                                search_field=field_type, search_value=value_1)
 
+ssh_connections = {}
+@app.route('/terminal')
+def terminal():
+    return render_template('terminal.html')
+
+@socketio.on('connect')
+def handle_connect():
+    print('客户端已连接')
+    emit('status', {'message': '连接成功，请输入SSH连接信息'})
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    print('客户端已断开连接')
+    # 清理SSH连接
+    session_id = request.sid
+    if session_id in ssh_connections:
+        ssh_connections[session_id].close()
+        del ssh_connections[session_id]
+
+
+@socketio.on('ssh_connect')
+def handle_ssh_connect(ssh_data):
+    try:
+        hostname = ssh_data['hostname']
+        username = ssh_data['username']
+        password = ssh_data['password']
+        #port = ssh_data.get('port', 22)
+        port = 22
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh.connect(hostname, port=port, username=username, password=password)
+        session_id = request.sid
+        ssh_connections[session_id] = ssh
+        emit('ssh_connected', {'msg': f'成功连接到 {hostname}'})
+    except Exception as error:
+        emit('ssh_error', {'error': str(error)})
+
+
+@socketio.on('execute_command')
+def handle_execute_command(command_data):
+    session_id = request.sid
+    if session_id in ssh_connections:
+        try:
+            command = command_data['command']
+            ssh = ssh_connections[session_id]
+
+            stdin, stdout, stderr = ssh.exec_command(command)
+            output = stdout.read().decode('utf-8')
+            error = stderr.read().decode('utf-8')
+            exit_status = stdout.channel.recv_exit_status()
+
+            emit('command_result', {
+                'command': command,
+                'output': output,
+                'error': error,
+                'exit_status': exit_status
+            })
+        except Exception as error:
+            emit('command_error', {'error': str(error)})
+    else:
+        emit('command_error', {'error': '未建立SSH连接'})
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    socketio.run(app, host='0.0.0.0', port=5000, debug=True, allow_unsafe_werkzeug=True)
