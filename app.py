@@ -4,14 +4,16 @@ from User_Template import User_Template
 from User import User
 from flask_socketio import SocketIO, emit
 import paramiko
-import time
+import datetime
+
 
 print("2025.06.16")
 print("管理系统")
-print("SQL+FLASK+HTML storage version v0.4")
+print("SQL+FLASK+HTML storage version v0.5")
 
 app = Flask(__name__)
 socketio = SocketIO(app,cors_allowed_origins="*")
+start_time = datetime.now()
 #app.secret_key = 'Drmhze6EPcv0fN_81Bj-nA'
 
 
@@ -50,7 +52,14 @@ def welcome(username):
 @app.route('/main')
 def main():
     results_all = all_person()
-    return render_template('main.html', results=results_all)
+    current_time = datetime.now()
+    runtime = current_time - start_time
+    days = runtime.days
+    hours = runtime.seconds // 3600
+    minutes = (runtime.seconds % 3600) //60
+    seconds = (runtime.seconds % 3600) % 60
+    str_runtime=f"{days}天 {hours}小时 {minutes}分钟 {seconds}秒"
+    return render_template('main.html', results=results_all, runtime=str_runtime)
 
 
 @app.route('/add_people', methods=['POST'])
