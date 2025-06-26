@@ -59,7 +59,7 @@ def main():
     hours = runtime.seconds // 3600
     minutes = (runtime.seconds % 3600) //60
     seconds = (runtime.seconds % 3600) % 60
-    str_runtime=f"{days}天 {hours}小时 {minutes}分钟 {seconds}秒"
+    str_runtime="%d天 %d小时 %d分钟 %d秒" % (days, hours, minutes, seconds)
     return render_template('main.html', results=results_all, runtime=str_runtime)
 
 
