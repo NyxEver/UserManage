@@ -1,11 +1,11 @@
-# coding: utf-8
+# -*- coding: utf-8 -*-
 from flask import Flask, render_template, request, redirect, url_for
 from DatabaseManager import all_person
 from User_Template import User_Template
 from User import User
 from flask_socketio import SocketIO, emit
 import paramiko
-import datetime
+from datetime import datetime
 
 
 print("2025.06.16")
