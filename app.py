@@ -1,3 +1,4 @@
+# coding: utf-8
 from flask import Flask, render_template, request, redirect, url_for
 from DatabaseManager import all_person
 from User_Template import User_Template
