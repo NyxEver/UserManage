@@ -1,18 +1,12 @@
 -- 创建数据库（如果不存在）
-CREATE DATABASE IF NOT EXISTS student_db;
-USE student_db;
-
--- 创建账户表
-CREATE TABLE IF NOT EXISTS account (
-    username VARCHAR(20) PRIMARY KEY,
-    password VARCHAR(50) NOT NULL,
-    identify CHAR(1) NOT NULL
-);
+CREATE DATABASE IF NOT EXISTS user_db;
+USE user_db;
 
 -- 创建人员表
 CREATE TABLE IF NOT EXISTS persons (
     ID BIGINT NOT NULL PRIMARY KEY,
     number INT(8) NOT NULL UNIQUE,
+    password VARCHAR(50) not null,
     name VARCHAR(255) NOT NULL,
     age INT(3) NOT NULL,
     gender CHAR(1) NOT NULL,

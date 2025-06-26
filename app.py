@@ -12,6 +12,8 @@ print("SQL+FLASK+HTML storage version v0.4")
 
 app = Flask(__name__)
 socketio = SocketIO(app,cors_allowed_origins="*")
+#app.secret_key = 'Drmhze6EPcv0fN_81Bj-nA'
+
 
 @app.route('/')
 def index():
