@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
-from flask import Flask, render_template, request, redirect, url_for
-from DatabaseManager import all_person
+from flask import Flask, render_template, request, redirect, url_for, session
+from DatabaseManager import all_person_root, all_person_user
 from User_Template import User_Template
 from User import User
 from flask_socketio import SocketIO, emit
 import paramiko
 from datetime import datetime
+import secrets
+from functools import wraps
 
 
 print("2025.06.16")
@@ -15,7 +17,21 @@ print("SQL+FLASK+HTML storage version v0.5")
 app = Flask(__name__)
 socketio = SocketIO(app,cors_allowed_origins="*")
 start_time = datetime.now()
-#app.secret_key = 'Drmhze6EPcv0fN_81Bj-nA'
+keys=secrets.token_hex(16)
+app.secret_key = (keys)
+
+def require_role(require_role):#表示需要的最低权限角色
+    def decorator(original_function):
+        @wraps(original_function)
+        def wrapper():
+            if 'role' not in session:
+                return render_template('index.html')
+            if session['role'] == require_role:
+                return original_function()
+            else:
+                return render_template('user_error.html')
+        return wrapper
+    return decorator
 
 
 @app.route('/')
@@ -28,6 +44,8 @@ def account_verify():
     password = request.form['password']
     result_verify = User_Template.verify_user_account(number, password)
     if result_verify:
+        session['username'] = number
+        session['role'] = result_verify.role
         return redirect(url_for('welcome', username=number))
     else:
         return "账号或密码错误"
@@ -52,7 +70,10 @@ def welcome(username):
 
 @app.route('/main')
 def main():
-    results_all = all_person()
+    if session['role']=='root':
+        results_all = all_person_root()
+    else:
+        results_all = all_person_user()
     current_time = datetime.now()
     runtime = current_time - start_time
     days = runtime.days
@@ -64,6 +85,7 @@ def main():
 
 
 @app.route('/add_people', methods=['POST'])
+@require_role('root')
 def add_people():
     try:
         number = request.form['number']
@@ -86,6 +108,7 @@ def add_people():
 
 
 @app.route('/delete_people', methods=['POST'])
+@require_role('root')
 def delete_people():
     field_type = request.form['field_type']
     del_value = request.form['value_1']
@@ -103,6 +126,7 @@ def delete_people():
         return "未找到 or 删除失败"
 
 @app.route('/update_people', methods=['POST'])
+@require_role('root')
 def update_people():
     field_type = request.form.get('field_type')
     value_find = request.form.get('value_1')
@@ -151,6 +175,7 @@ def find_people():
 
 ssh_connections = {}
 @app.route('/terminal')
+@require_role('root')
 def terminal():
     return render_template('terminal.html')
 

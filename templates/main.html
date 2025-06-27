@@ -105,71 +105,87 @@
 <body>
     <h1>人员管理系统</h1>
     
-    <!-- 导航按钮 -->
+    <!-- 角色信息显示 -->
+    <div class="role-info">
+        <strong>当前用户角色：</strong>{{ session.role }}
+        {% if session.role == 'root' %}
+            （管理员权限 - 可执行所有操作）
+        {% else %}
+            （普通用户权限 - 仅可查看和搜索）
+        {% endif %}
+    </div>
+    
+    <!-- 导航按钮 - 根据角色显示 -->
     <div class="nav-buttons">
-        <button class="nav-btn" data-section="add" onclick="showSection('add')">添加</button>
-        <button class="nav-btn" data-section="search" onclick="showSection('search')">查找</button>
-        <button class="nav-btn" data-section="delete" onclick="showSection('delete')">删除</button>
-        <button class="nav-btn" data-section="update" onclick="showSection('update')">修改</button>
-        <button class="nav-btn" onclick="window.open('/terminal', '_blank')">远程终端</button>
+        {% if session.role == 'root' %}
+            <button class="nav-btn" data-section="add" onclick="showSection('add')">添加</button>
+            <button class="nav-btn" data-section="search" onclick="showSection('search')">查找</button>
+            <button class="nav-btn" data-section="delete" onclick="showSection('delete')">删除</button>
+            <button class="nav-btn" data-section="update" onclick="showSection('update')">修改</button>
+            <button class="nav-btn" onclick="window.open('/terminal', '_blank')">远程终端</button>
+        {% else %}
+            <button class="nav-btn" data-section="search" onclick="showSection('search')">查找</button>
+        {% endif %}
     </div>
     
     <div class="container">
-        <!-- 添加人员表单 -->
-        <div class="function-section" id="add-section">
-            <div class="form-section">
-                <h3>添加人员</h3>
-                <form action="/add_people" method="POST">
-                    <div class="form-row">
-                        <label>姓名：</label>
-                        <input type="text" name="name" placeholder="姓名" required>
-                    </div>
-                    <div class="form-row">
-                        <label>年龄：</label>
-                        <input type="number" name="age" placeholder="年龄" required>
-                    </div>
-                    <div class="form-row">
-                        <label>性别：</label>
-                        <select name="gender" required>
-                            <option value="">选择性别</option>
-                            <option value="M">男</option>
-                            <option value="F">女</option>
-                        </select>
-                    </div>
-                    <div class="form-row">
-                        <label>编号：</label>
-                        <input type="text" name="number" placeholder="编号" required>
-                    </div>
-                    <div class="form-row">
-                        <label>密码：</label>
-                        <input type="password" name="password" placeholder="密码" required>
-                    </div>
-                    <div class="form-row">
-                        <label>身份：</label>
-                        <select name="role" required>
-                            <option value="">选择身份</option>
-                            <option value="user">user</option>
-                            <option value="root">root</option>
-                        </select>
-                    </div>
-                    <div class="form-row">
-                        <select name="input_status" required onchange="handleStatusChange(this)">
-                            <option value="">选择类型</option>
-                            <option value="grade">年级</option>
-                            <option value="position">职位</option>
-                        </select>
-                        <input type="text" name="status_value" id="statusValue" placeholder="请输入年级或职位" required>
-                        <input type="hidden" name="grade" id="gradeValue" value="None">
-                        <input type="hidden" name="position" id="positionValue" value="None">
-                    </div>
-                    <div>
-                        <button type="submit">添加</button>
-                    </div>
-                </form>
+        {% if session.role == 'root' %}
+            <!-- 添加人员表单 - 仅管理员可见 -->
+            <div class="function-section" id="add-section">
+                <div class="form-section">
+                    <h3>添加人员</h3>
+                    <form action="/add_people" method="POST">
+                        <div class="form-row">
+                            <label>姓名：</label>
+                            <input type="text" name="name" placeholder="姓名" required>
+                        </div>
+                        <div class="form-row">
+                            <label>年龄：</label>
+                            <input type="number" name="age" placeholder="年龄" required>
+                        </div>
+                        <div class="form-row">
+                            <label>性别：</label>
+                            <select name="gender" required>
+                                <option value="">选择性别</option>
+                                <option value="M">男</option>
+                                <option value="F">女</option>
+                            </select>
+                        </div>
+                        <div class="form-row">
+                            <label>编号：</label>
+                            <input type="text" name="number" placeholder="编号" required>
+                        </div>
+                        <div class="form-row">
+                            <label>密码：</label>
+                            <input type="password" name="password" placeholder="密码" required>
+                        </div>
+                        <div class="form-row">
+                            <label>身份：</label>
+                            <select name="role" required>
+                                <option value="">选择身份</option>
+                                <option value="user">user</option>
+                                <option value="root">root</option>
+                            </select>
+                        </div>
+                        <div class="form-row">
+                            <select name="input_status" required onchange="handleStatusChange(this)">
+                                <option value="">选择类型</option>
+                                <option value="grade">年级</option>
+                                <option value="position">职位</option>
+                            </select>
+                            <input type="text" name="status_value" id="statusValue" placeholder="请输入年级或职位" required>
+                            <input type="hidden" name="grade" id="gradeValue" value="None">
+                            <input type="hidden" name="position" id="positionValue" value="None">
+                        </div>
+                        <div>
+                            <button type="submit">添加</button>
+                        </div>
+                    </form>
+                </div>
             </div>
-        </div>
+        {% endif %}
         
-        <!-- 查找人员表单 -->
+        <!-- 查找人员表单 - 所有用户可见 -->
         <div class="function-section" id="search-section">
             <div class="form-section">
                 <h3>查找人员</h3>
@@ -195,132 +211,157 @@
             </div>
         </div>
         
-        <!-- 删除人员表单 -->
-        <div class="function-section" id="delete-section">
-            <div class="form-section">
-                <h3>删除人员</h3>
-                <form action="/find_people" method="POST" id="deleteSearchForm">
-                    <div>
-                        <select name="field_type" required>
-                            <option value="">选择查找字段</option>
-                            <option value="name">姓名</option>
-                            <option value="age">年龄</option>
-                            <option value="gender">性别</option>
-                            <option value="number">编号</option>
-                            <option value="grade">年级</option>
-                            <option value="position">职位</option>
-                        </select>
-                    </div>
-                    <div>
-                        <input type="text" name="value_1" placeholder="查找值" required>
-                    </div>
-                    <div>
-                        <button type="submit">查找</button>
-                    </div>
-                </form>
-
-                <form action="/delete_people" method="POST" id="deleteForm" style="display: none; margin-top: 20px;" onsubmit="return confirmDelete()">
-                    <input type="hidden" name="field_type" id="deleteFieldType">
-                    <input type="hidden" name="value_1" id="deleteValue1">
-                    <input type="hidden" name="list_number" id="deleteSelectedIndex" value="">
-                    <div id="deleteFields">
-                        <h4>确认删除选中人员：</h4>
-                        <div style="padding: 10px; background-color: #ffe6e6; border: 1px solid #ffcccc; border-radius: 4px; margin-bottom: 10px;">
-                            <p><strong>姓名：</strong><span id="deletePersonName"></span></p>
-                            <p><strong>年龄：</strong><span id="deletePersonAge"></span></p>
-                            <p><strong>性别：</strong><span id="deletePersonGender"></span></p>
-                            <p><strong>编号：</strong><span id="deletePersonNumber"></span></p>
-                            <p><strong>身份：</strong><span id="deletePersonRole"></span></p>
-                            <p><strong>年级：</strong><span id="deletePersonGrade"></span></p>
-                            <p><strong>职位：</strong><span id="deletePersonPosition"></span></p>
-                        </div>
+        {% if session.role == 'root' %}
+            <!-- 删除人员表单 - 仅管理员可见 -->
+            <div class="function-section" id="delete-section">
+                <div class="form-section">
+                    <h3>删除人员</h3>
+                    <form action="/find_people" method="POST" id="deleteSearchForm">
                         <div>
-                            <button type="submit" style="background-color: #f44336;">确认删除</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-        
-        <!-- 修改人员表单 -->
-        <div class="function-section" id="update-section">
-            <div class="form-section">
-                <h3>修改人员</h3>
-                <form action="/find_people" method="POST" id="searchForm">
-                    <div>
-                        <select name="field_type" required>
-                            <option value="">选择查找字段</option>
-                            <option value="name">姓名</option>
-                            <option value="age">年龄</option>
-                            <option value="gender">性别</option>
-                            <option value="number">编号</option>
-                            <option value="grade">年级</option>
-                            <option value="position">职位</option>
-                        </select>
-                    </div>
-                    <div>
-                        <input type="text" name="value_1" placeholder="查找值" required>
-                    </div>
-                    <div>
-                        <button type="submit">查找</button>
-                    </div>
-                </form>
-
-                <form action="/update_people" method="POST" id="updateForm" style="display: none; margin-top: 20px;">
-                    <input type="hidden" name="field_type" id="updateFieldType">
-                    <input type="hidden" name="value_1" id="updateValue1">
-                    <input type="hidden" name="list_number" id="selectedIndex" value="">
-                    <div id="updateFields">
-                        <h4>修改选中人员信息：</h4>
-                        <div class="form-row">
-                            <label>姓名：</label>
-                            <input type="text" name="name" id="updateName" placeholder="新姓名">
-                        </div>
-                        <div class="form-row">
-                            <label>年龄：</label>
-                            <input type="number" name="age" id="updateAge" placeholder="新年龄">
-                        </div>
-                        <div class="form-row">
-                            <label>性别：</label>
-                            <select name="gender" id="updateGender">
-                                <option value="">选择性别</option>
-                                <option value="M">男</option>
-                                <option value="F">女</option>
+                            <select name="field_type" required>
+                                <option value="">选择查找字段</option>
+                                <option value="name">姓名</option>
+                                <option value="age">年龄</option>
+                                <option value="gender">性别</option>
+                                <option value="number">编号</option>
+                                <option value="grade">年级</option>
+                                <option value="position">职位</option>
                             </select>
                         </div>
-                        <div class="form-row">
-                            <label>编号：</label>
-                            <input type="text" name="number" id="updateNumber" placeholder="新编号">
-                        </div>
-                        <div class="form-row">
-                            <label>密码：</label>
-                            <input type="password" name="password" id="updatePassword" placeholder="新密码">
-                        </div>
-                        <div class="form-row">
-                            <label>身份：</label>
-                            <select name="role" id="updateRole">
-                                <option value="">选择身份</option>
-                                <option value="user">user</option>
-                                <option value="root">root</option>
-                            </select>
-                        </div>
-                        <div class="form-row">
-                            <label>年级：</label>
-                            <input type="text" name="grade" id="updateGrade" placeholder="新年级">
-                        </div>
-                        <div class="form-row">
-                            <label>职位：</label>
-                            <input type="text" name="position" id="updatePosition" placeholder="新职位">
+                        <div>
+                            <input type="text" name="value_1" placeholder="查找值" required>
                         </div>
                         <div>
-                            <button type="submit">确认修改</button>
+                            <button type="submit">查找</button>
                         </div>
-                    </div>
-                </form>
+                    </form>
+
+                    <form action="/delete_people" method="POST" id="deleteForm" style="display: none; margin-top: 20px;" onsubmit="return confirmDelete()">
+                        <input type="hidden" name="field_type" id="deleteFieldType">
+                        <input type="hidden" name="value_1" id="deleteValue1">
+                        <input type="hidden" name="list_number" id="deleteSelectedIndex" value="">
+                        <div id="deleteFields">
+                            <h4>确认删除选中人员：</h4>
+                            <div style="padding: 10px; background-color: #ffe6e6; border: 1px solid #ffcccc; border-radius: 4px; margin-bottom: 10px;">
+                                <p><strong>姓名：</strong><span id="deletePersonName"></span></p>
+                                <p><strong>年龄：</strong><span id="deletePersonAge"></span></p>
+                                <p><strong>性别：</strong><span id="deletePersonGender"></span></p>
+                                <p><strong>编号：</strong><span id="deletePersonNumber"></span></p>
+                                <p><strong>身份：</strong><span id="deletePersonRole"></span></p>
+                                <p><strong>年级：</strong><span id="deletePersonGrade"></span></p>
+                                <p><strong>职位：</strong><span id="deletePersonPosition"></span></p>
+                            </div>
+                            <div>
+                                <button type="submit" style="background-color: #f44336;">确认删除</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
             </div>
-        </div>
+            
+            <!-- 修改人员表单 - 仅管理员可见 -->
+            <div class="function-section" id="update-section">
+                <div class="form-section">
+                    <h3>修改人员</h3>
+                    <form action="/find_people" method="POST" id="searchForm">
+                        <div>
+                            <select name="field_type" required>
+                                <option value="">选择查找字段</option>
+                                <option value="name">姓名</option>
+                                <option value="age">年龄</option>
+                                <option value="gender">性别</option>
+                                <option value="number">编号</option>
+                                <option value="grade">年级</option>
+                                <option value="position">职位</option>
+                            </select>
+                        </div>
+                        <div>
+                            <input type="text" name="value_1" placeholder="查找值" required>
+                        </div>
+                        <div>
+                            <button type="submit">查找</button>
+                        </div>
+                    </form>
+
+                    <form action="/update_people" method="POST" id="updateForm" style="display: none; margin-top: 20px;">
+                        <input type="hidden" name="field_type" id="updateFieldType">
+                        <input type="hidden" name="value_1" id="updateValue1">
+                        <input type="hidden" name="list_number" id="selectedIndex" value="">
+                        <div id="updateFields">
+                            <h4>修改选中人员信息：</h4>
+                            <div class="form-row">
+                                <label>姓名：</label>
+                                <input type="text" name="name" id="updateName" placeholder="新姓名">
+                            </div>
+                            <div class="form-row">
+                                <label>年龄：</label>
+                                <input type="number" name="age" id="updateAge" placeholder="新年龄">
+                            </div>
+                            <div class="form-row">
+                                <label>性别：</label>
+                                <select name="gender" id="updateGender">
+                                    <option value="">选择性别</option>
+                                    <option value="M">男</option>
+                                    <option value="F">女</option>
+                                </select>
+                            </div>
+                            <div class="form-row">
+                                <label>编号：</label>
+                                <input type="text" name="number" id="updateNumber" placeholder="新编号">
+                            </div>
+                            <div class="form-row">
+                                <label>密码：</label>
+                                <input type="password" name="password" id="updatePassword" placeholder="新密码">
+                            </div>
+                            <div class="form-row">
+                                <label>身份：</label>
+                                <select name="role" id="updateRole">
+                                    <option value="">选择身份</option>
+                                    <option value="user">user</option>
+                                    <option value="root">root</option>
+                                </select>
+                            </div>
+                            <div class="form-row">
+                                <label>年级：</label>
+                                <input type="text" name="grade" id="updateGrade" placeholder="新年级">
+                            </div>
+                            <div class="form-row">
+                                <label>职位：</label>
+                                <input type="text" name="position" id="updatePosition" placeholder="新职位">
+                            </div>
+                            <div>
+                                <button type="submit">确认修改</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        {% else %}
+            <!-- 普通用户权限提示 -->
+            <div class="function-section" id="add-section">
+                <div class="permission-denied">
+                    <h3>权限不足</h3>
+                    <p>您当前是普通用户，仅可查看和搜索人员信息。</p>
+                    <p>如需添加、修改或删除人员，请联系管理员。</p>
+                </div>
+            </div>
+            <div class="function-section" id="delete-section">
+                <div class="permission-denied">
+                    <h3>权限不足</h3>
+                    <p>您当前是普通用户，仅可查看和搜索人员信息。</p>
+                    <p>如需添加、修改或删除人员，请联系管理员。</p>
+                </div>
+            </div>
+            <div class="function-section" id="update-section">
+                <div class="permission-denied">
+                    <h3>权限不足</h3>
+                    <p>您当前是普通用户，仅可查看和搜索人员信息。</p>
+                    <p>如需添加、修改或删除人员，请联系管理员。</p>
+                </div>
+            </div>
+        {% endif %}
         
-        <!-- 人员数据表格 -->
+        <!-- 人员数据表格 - 根据角色显示不同内容 -->
         <div class="form-section">
             <h3>人员列表</h3>
             {% if search_performed %}
@@ -339,9 +380,13 @@
             {% endif %}
             <table>
                 <tr>
-                    <th>选择</th>
+                    {% if session.role == 'root' %}
+                        <th>选择</th>
+                    {% endif %}
                     <th>编号</th>
-                    <th>密码</th>
+                    {% if session.role == 'root' %}
+                        <th>密码</th>
+                    {% endif %}
                     <th>姓名</th>
                     <th>年龄</th>
                     <th>性别</th>
@@ -353,22 +398,38 @@
                 {% if results %}
                     {% for person in results %}
                         <tr>
-                            <td>
-                                <input type="radio" name="selectPerson" value="{{ loop.index0 }}" onchange="handleSelection(this)">
-                            </td>
+                            {% if session.role == 'root' %}
+                                <td>
+                                    <input type="radio" name="selectPerson" value="{{ loop.index0 }}" onchange="handleSelection(this)">
+                                </td>
+                            {% endif %}
                             <td>{{ person[0] }}</td>
-                            <td>{{ person[1] if person|length > 1 else '' }}</td>
-                            <td>{{ person[2] if person|length > 2 else '' }}</td>
-                            <td>{{ person[3] if person|length > 3 else '' }}</td>
-                            <td>{{ person[4] if person|length > 4 else '' }}</td>
-                            <td>{{ person[5] if person|length > 5 else '' }}</td>
-                            <td>{{ person[6] if person|length > 6 else '' }}</td>
-                            <td>{{ person[7] if person|length > 7 else '' }}</td>
+                            {% if session.role == 'root' %}
+                                <td>{{ person[1] if person|length > 1 else '' }}</td>
+                                <td>{{ person[2] if person|length > 2 else '' }}</td>
+                                <td>{{ person[3] if person|length > 3 else '' }}</td>
+                                <td>{{ person[4] if person|length > 4 else '' }}</td>
+                                <td>{{ person[5] if person|length > 5 else '' }}</td>
+                                <td>{{ person[6] if person|length > 6 else '' }}</td>
+                                <td>{{ person[7] if person|length > 7 else '' }}</td>
+                            {% else %}
+                                <!-- 普通用户视图：不显示密码，数据索引相应调整 -->
+                                <td>{{ person[1] if person|length > 1 else '' }}</td>
+                                <td>{{ person[2] if person|length > 2 else '' }}</td>
+                                <td>{{ person[3] if person|length > 3 else '' }}</td>
+                                <td>{{ person[4] if person|length > 4 else '' }}</td>
+                                <td>{{ person[5] if person|length > 5 else '' }}</td>
+                                <td>{{ person[6] if person|length > 6 else '' }}</td>
+                            {% endif %}
                         </tr>
                     {% endfor %}
                 {% else %}
                     <tr>
-                        <td colspan="9" style="text-align: center;">暂无数据</td>
+                        {% if session.role == 'root' %}
+                            <td colspan="9" style="text-align: center;">暂无数据</td>
+                        {% else %}
+                            <td colspan="8" style="text-align: center;">暂无数据</td>
+                        {% endif %}
                     </tr>
                 {% endif %}
             </table>
@@ -377,8 +438,9 @@
     <script>
         // 页面加载时恢复之前选择的标签
         document.addEventListener('DOMContentLoaded', function() {
-            // 从localStorage获取上次选择的标签，如果没有则默认为'add'
-            const savedSection = localStorage.getItem('activeSection') || 'add';
+            // 根据角色设置默认标签
+            const userRole = '{{ session.role }}';
+            const savedSection = localStorage.getItem('activeSection') || (userRole === 'root' ? 'add' : 'search');
             showSection(savedSection);
         });
         
@@ -427,7 +489,7 @@
             
             // 使用保存的搜索条件，而不是从表单中重新获取
             const currentSearchFieldType = document.getElementById('currentSearchFieldType')?.value || "name";
-            const currentSearchValue = document.getElementById('currentSearchValue')?.value || cells[3].textContent.trim();
+            const currentSearchValue = document.getElementById('currentSearchValue')?.value || cells[2].textContent.trim(); // 管理员视图中姓名在第3列
             
             // 设置更新表单的搜索条件
             document.getElementById('updateFieldType').value = currentSearchFieldType;
@@ -436,9 +498,9 @@
             // 设置选中的索引
             document.getElementById('selectedIndex').value = radio.value;
             
-            // 填充原有数据到修改表单中（根据新的列顺序调整）
+            // 填充原有数据到修改表单中（管理员视图）
             document.getElementById('updateNumber').value = cells[1].textContent.trim();
-            document.getElementById('updatePassword').value = cells[2].textContent.trim(); // 添加密码字段
+            document.getElementById('updatePassword').value = cells[2].textContent.trim();
             document.getElementById('updateName').value = cells[3].textContent.trim();
             document.getElementById('updateAge').value = cells[4].textContent.trim();
             document.getElementById('updateGender').value = cells[5].textContent.trim();
@@ -448,13 +510,6 @@
             
             // 处理删除表单
             handleDeleteSelection(radio);
-            
-            // 调试输出
-            console.log("设置的隐藏字段值：", {
-                field_type: document.getElementById('updateFieldType').value,
-                value_1: document.getElementById('updateValue1').value,
-                list_number: document.getElementById('selectedIndex').value
-            });
         }
         
         function handleStatusChange(selectElement) {
@@ -485,9 +540,14 @@
         // 页面加载时初始化隐藏字段
         document.addEventListener('DOMContentLoaded', function() {
             // 初始化隐藏字段
-            document.getElementById('gradeValue').value = 'None';
-            document.getElementById('positionValue').value = 'None';
+            if (document.getElementById('gradeValue')) {
+                document.getElementById('gradeValue').value = 'None';
+            }
+            if (document.getElementById('positionValue')) {
+                document.getElementById('positionValue').value = 'None';
+            }
         });
+        
         function handleDeleteSelection(radio) {
             const row = radio.closest('tr');
             const cells = row.cells;
@@ -495,11 +555,7 @@
             // 显示删除表单
             document.getElementById('deleteForm').style.display = 'block';
             
-            // 获取删除查询表单中的值
-            const deleteSearchFieldType = document.querySelector('#deleteSearchForm select[name="field_type"]').value;
-            const deleteSearchValue = document.querySelector('#deleteSearchForm input[name="value_1"]').value;
-            
-            // 直接使用当前搜索条件，移除不必要的代码
+            // 直接使用当前搜索条件
             const currentSearchFieldType = document.getElementById('currentSearchFieldType')?.value || "name";
             const currentSearchValue = document.getElementById('currentSearchValue')?.value || cells[3].textContent.trim();
             
@@ -508,7 +564,7 @@
             document.getElementById('deleteValue1').value = currentSearchValue;
             document.getElementById('deleteSelectedIndex').value = radio.value;
             
-            // 显示要删除的人员信息（根据新的列顺序调整）
+            // 显示要删除的人员信息（管理员视图）
             document.getElementById('deletePersonNumber').textContent = cells[1].textContent.trim();
             document.getElementById('deletePersonName').textContent = cells[3].textContent.trim();
             document.getElementById('deletePersonAge').textContent = cells[4].textContent.trim();

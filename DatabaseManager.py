@@ -96,9 +96,19 @@ def person_find(field_type, find_value):
         return False
 
 
-def all_person():  # 打印数据库内所有的
+def all_person_root():
     all_person_cursor = mydb.cursor()
     all_person_cursor.execute("SELECT * FROM persons_root_view WHERE number != 'admin'")
+    try:
+        results_all = all_person_cursor.fetchall()
+        all_person_cursor.close()
+        return results_all
+    except mysql.connector.Error as error:
+        return False
+
+def all_person_user():
+    all_person_cursor = mydb.cursor()
+    all_person_cursor.execute("SELECT * FROM persons_user_view WHERE number != 'admin'")
     try:
         results_all = all_person_cursor.fetchall()
         all_person_cursor.close()
