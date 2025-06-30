@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from flask import Flask, render_template, request, redirect, url_for, session
 from DatabaseManager import all_person_root, all_person_user
 from User_Template import User_Template
@@ -8,8 +7,9 @@ import paramiko
 from datetime import datetime
 import secrets
 from functools import wraps
+from logger_config import get_logger
 
-
+logger = get_logger(__name__)
 print("2025.06.16")
 print("管理系统")
 print("SQL+FLASK+HTML storage version v0.5")
@@ -44,6 +44,7 @@ def account_verify():
     password = request.form['password']
     result_verify = User_Template.verify_user_account(number, password)
     if result_verify:
+        logger.info(number)
         session['username'] = number
         session['role'] = result_verify.role
         return redirect(url_for('welcome', username=number))
@@ -70,41 +71,42 @@ def welcome(username):
 
 @app.route('/main')
 def main():
-    if session['role']=='root':
-        results_all = all_person_root()
-    else:
-        results_all = all_person_user()
-    current_time = datetime.now()
-    runtime = current_time - start_time
-    days = runtime.days
-    hours = runtime.seconds // 3600
-    minutes = (runtime.seconds % 3600) //60
-    seconds = (runtime.seconds % 3600) % 60
-    str_runtime="%d天 %d小时 %d分钟 %d秒" % (days, hours, minutes, seconds)
-    return render_template('main.html', results=results_all, runtime=str_runtime)
+    try:
+        if session['role'] == 'root':
+            results_all = all_person_root()
+        else:
+            results_all = all_person_user()
+        current_time = datetime.now()
+        runtime = current_time - start_time
+        days = runtime.days
+        hours = runtime.seconds // 3600
+        minutes = (runtime.seconds % 3600) // 60
+        seconds = (runtime.seconds % 3600) % 60
+        str_runtime = "%d天 %d小时 %d分钟 %d秒" % (days, hours, minutes, seconds)
+        return render_template('main.html', results=results_all, runtime=str_runtime)
+    except Exception as error:
+        logging.error(error)
 
 
 @app.route('/add_people', methods=['POST'])
 @require_role('root')
 def add_people():
-    try:
-        number = request.form['number']
-        #password = request.form['password']
-        password = request.form.get('password', 'default123')
-        name = request.form['name']
-        age = int(request.form['age'])
-        gender = request.form['gender']
-        role = request.form['role']
-        grade = request.form['grade']
-        position = request.form['position']
-        user = User(number, password, name, age, gender, role, grade, position)
-        result_add = user.save_SQL()
-        if result_add:
-            return redirect(url_for('main'))
-        else:
-            return "添加失败"
-    except ValueError as error:
-        return f"输入数据格式错误：{error}"
+    number = request.form['number']
+    # password = request.form['password']
+    password = request.form.get('password', 'default123')
+    name = request.form['name']
+    age = int(request.form['age'])
+    gender = request.form['gender']
+    role = request.form['role']
+    grade = request.form['grade']
+    position = request.form['position']
+    user = User(number, password, name, age, gender, role, grade, position)
+    result_add = user.save_SQL()
+    if result_add:
+        return redirect(url_for('main'))
+    else:
+        return "添加失败"
+        logging.DEBUG(result_add)
 
 
 @app.route('/delete_people', methods=['POST'])
@@ -133,6 +135,7 @@ def update_people():
     person_find_data = User_Template.find_SQL(field_type, value_find)
     if not person_find_data:
         return "未找到符合条件的记录"
+        logging.DEBUG(person_find_data)
     list_number = request.form.get('list_number')
     list_number = int(list_number)
     person_data = person_find_data[list_number]
@@ -140,6 +143,7 @@ def update_people():
     original_dict = dict(zip(['number','password', 'name', 'age', 'gender','role','grade','position'], person_data))
     if not original_dict:
         return "未找到要修改的记录"
+        logging.DEBUG(original_dict)
     new_values_list = [
         request.form.get('number', original_dict['number']),# 如果未提供则使用原值
         request.form.get('password', original_dict['password']),

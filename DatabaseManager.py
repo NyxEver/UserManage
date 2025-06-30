@@ -1,8 +1,10 @@
 import mysql.connector
 from Snowflake import Snowflake
 import os
+from logger_config import get_logger
 
 snowflake = Snowflake(worker_id=1, data_center_id=1)
+logger = get_logger(__name__)
 
 mydb = mysql.connector.connect(
     host=os.getenv('DB_HOST', '127.0.0.1'),
