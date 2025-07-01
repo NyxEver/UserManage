@@ -6,12 +6,17 @@ from logger_config import get_logger
 snowflake = Snowflake(worker_id=1, data_center_id=1)
 logger = get_logger(__name__)
 
-mydb = mysql.connector.connect(
-    host=os.getenv('DB_HOST', '127.0.0.1'),
-    user=os.getenv('DB_USER', 'root'),
-    password=os.getenv('DB_PASSWORD', '2397947891'),
-    database=os.getenv('DB_NAME', 'student_db')
-)
+try:
+    mydb = mysql.connector.connect(
+        host=os.getenv('DB_HOST', '127.0.0.1'),
+        user=os.getenv('DB_USER', 'root'),
+        password=os.getenv('DB_PASSWORD', '2397947891'),
+        database=os.getenv('DB_NAME', 'student_db')
+    )
+    logger.info("数据库连接成功")
+except mysql.connector.Error as error:
+    logger.error(f"数据库连接失败: {error}")
+
 snowflake_id = snowflake.next_id()
 person_cursor = mydb.cursor()
 person_cursor.execute("CREATE TABLE if not exists persons (ID BIGINT not null PRIMARY KEY,"
