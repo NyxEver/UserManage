@@ -14,7 +14,7 @@ def get_logger(model_name):
     #date_format = '%Y-%m-%d %H:%M:%S'
     # 创建文件处理器
     today = datetime.now().strftime('%Y-%m-%d')
-    file_handler = logging.FileHandler(f'logs/app_{today}.txt', encoding='utf-8')
+    file_handler = logging.FileHandler(f'logs/log_{today}.txt', encoding='utf-8')
     file_handler.setLevel(logging.INFO)
 
     # 创建控制台处理器
