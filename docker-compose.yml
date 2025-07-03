@@ -1,31 +1,29 @@
-mysql:
-  image: mysql:8.0
-  container_name: peoplemanage_mysql
-  environment:
-    MYSQL_ROOT_PASSWORD: 2397947891
-    MYSQL_DATABASE: student_db
-    MYSQL_USER: app_user
-    MYSQL_PASSWORD: app_password
-  ports:
-    - "3306:3306"
-  volumes:
-    - mysql_data:/var/lib/mysql
-    - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-  networks:
-    - peoplemanage_network
-  healthcheck:
-    test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-    timeout: 20s
-    retries: 10
+services:
+  # MySQL数据库服务
+  mysql:
+    image: mysql:8.0
+    container_name: peoplemanage_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: 2397947891
+      MYSQL_DATABASE: student_db
+      MYSQL_USER: app_user
+      MYSQL_PASSWORD: app_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - peoplemanage_network
 
-web:
-  build: .
-  container_name: peoplemanage_web
-  ports:
-    - "5000:5000"
-  depends_on:
-    mysql:
-      condition: service_healthy
+  # Flask应用服务
+  web:
+    build: .
+    container_name: peoplemanage_web
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mysql
     environment:
       - DB_HOST=mysql
       - DB_USER=root
