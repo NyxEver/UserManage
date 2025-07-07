@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from flask import Flask, render_template, request, redirect, url_for, session
 from DatabaseManager import all_person_root, all_person_user
 from User_Template import User_Template
@@ -10,7 +11,7 @@ from functools import wraps
 from logger_config import get_logger
 
 logger = get_logger(__name__)
-print("2025.06.16")
+print("2025.06.26")
 print("管理系统")
 print("SQL+FLASK+HTML storage version v0.5")
 
@@ -85,7 +86,7 @@ def main():
         str_runtime = "%d天 %d小时 %d分钟 %d秒" % (days, hours, minutes, seconds)
         return render_template('main.html', results=results_all, runtime=str_runtime)
     except Exception as error:
-        logging.error(error)
+        logger.error(error)
 
 
 @app.route('/add_people', methods=['POST'])
@@ -106,7 +107,7 @@ def add_people():
         return redirect(url_for('main'))
     else:
         return "添加失败"
-        logging.DEBUG(result_add)
+        logger.DEBUG(result_add)
 
 
 @app.route('/delete_people', methods=['POST'])
@@ -135,7 +136,7 @@ def update_people():
     person_find_data = User_Template.find_SQL(field_type, value_find)
     if not person_find_data:
         return "未找到符合条件的记录"
-        logging.DEBUG(person_find_data)
+        logger.DEBUG(person_find_data)
     list_number = request.form.get('list_number')
     list_number = int(list_number)
     person_data = person_find_data[list_number]
@@ -143,7 +144,7 @@ def update_people():
     original_dict = dict(zip(['number','password', 'name', 'age', 'gender','role','grade','position'], person_data))
     if not original_dict:
         return "未找到要修改的记录"
-        logging.DEBUG(original_dict)
+        logger.DEBUG(original_dict)
     new_values_list = [
         request.form.get('number', original_dict['number']),# 如果未提供则使用原值
         request.form.get('password', original_dict['password']),
