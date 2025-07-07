@@ -17,10 +17,10 @@ class DatabaseManager:
     def get_connect(self):
         try:
             self.mydb_connection = mysql.connector.connect(
-                host=os.getenv('DB_HOST', '127.0.0.1'),
-                user=os.getenv('DB_USER', 'root'),
-                password=os.getenv('DB_PASSWORD', '2397947891'),
-                database=os.getenv('DB_NAME', 'student_db'),
+                host=self.db_host,
+                user=self.db_user,
+                password=self.db_password,
+                database=self.db_database,
                 #autocommit=True
             )
             if self.mydb_connection.is_connected():
