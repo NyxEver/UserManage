@@ -20,7 +20,7 @@ class DatabaseManagePooling:
             test_connect = self.db_pool.get_connection()
             if not test_connect.is_connected():
                 test_connect.reconnect(attempts=5, delay=5)
-                return test_connect
+            return test_connect
         except mysql.connector.Error as error:
             logger.error(f"数据库连接失败：{error}")
 
@@ -73,11 +73,11 @@ def user_add(user):
             add_pool_connection.close()
 
 def user_delete(user):
-    delete_pool_connection = mydb.mydb.get_connect()
+    delete_pool_connection = mydb.get_connect()
     user_delete_cursor = delete_pool_connection.cursor()
     try:
         user_delete_cursor.execute("DELETE FROM persons where number=%s", (user.number,))
-        mydb.mydb_connection.commit()
+        delete_pool_connection.commit()
         return True
     except mysql.connector.Error as error:
         logger.error(f"删除操作失败: {error}")
@@ -87,3 +87,124 @@ def user_delete(user):
             user_delete_cursor.close()
         if delete_pool_connection:
             delete_pool_connection.close()
+
+def get_user_id(user):
+    try:
+        get_id_pool_connection = mydb.get_connect()
+        get_user_id_cursor = get_id_pool_connection.cursor()
+        get_user_id_cursor.execute("SELECT ID FROM persons WHERE number = %s AND name = %s AND age = %s",
+                                     (user.number, user.name, user.age))
+        result_ID = get_user_id_cursor.fetchone()
+        get_user_id_cursor.close()
+        return result_ID[0]
+    except mysql.connector.Error as error:
+        logger.error(f"操作失败: {error}")
+        return False
+    finally:
+        if get_user_id_cursor:
+            get_user_id_cursor.close()
+        if get_id_pool_connection:
+            get_id_pool_connection.close()
+
+def user_update(user, get_id):
+    try:
+        update_pool_connection = mydb.get_connect()
+        user_update_cursor = update_pool_connection.cursor()
+        user_update_cursor.execute("UPDATE persons SET number=%s, password=%s, name = %s, age=%s, gender=%s, role=%s, grade=%s, position=%s where ID = %s",
+                                     (user.number, user.password, user.name, user.age, user.gender, user.role, user.grade,user.position, get_id))
+        update_pool_connection.commit()
+        return True
+    except mysql.connector.Error as error:
+        logger.error(f"修改操作失败: {error}")
+        return False
+    finally:
+        if user_update_cursor:
+            user_update_cursor.close()
+        if update_pool_connection:
+            update_pool_connection.close()
+
+def user_find(field_type, find_value):
+    try:
+        find_pool_connection = mydb.get_connect()
+        user_find_cursor = find_pool_connection.cursor()
+        user_find_cursor.execute(f"SELECT * FROM persons_root_view where {field_type} = %s AND number != 'admin'", (find_value,))
+        result_find = user_find_cursor.fetchall()
+        return result_find
+    except mysql.connector.Error as error:
+        logger.error(f"修改操作失败: {error}")
+        return False
+    finally:
+        if user_find_cursor:
+            user_find_cursor.close()
+        if find_pool_connection:
+            find_pool_connection.close()
+
+def all_user_root():
+    try:
+        root_pool_connection = mydb.get_connect()
+        all_user_cursor = root_pool_connection.cursor()
+        all_user_cursor.execute("SELECT * FROM persons_root_view WHERE number != 'admin'")
+        results_all = all_user_cursor.fetchall()
+        all_user_cursor.close()
+        return results_all
+    except mysql.connector.Error as error:
+        logger.error(f"操作失败: {error}")
+        return False
+    finally:
+        if all_user_cursor:
+            all_user_cursor.close()
+        if root_pool_connection:
+            root_pool_connection.close()
+
+def all_user_user():
+    try:
+        user_pool_connection = mydb.get_connect()
+        all_user_cursor = user_pool_connection.cursor()
+        all_user_cursor.execute("SELECT * FROM persons_user_view WHERE number != 'admin'")
+        results_all = all_user_cursor.fetchall()
+        all_user_cursor.close()
+        return results_all
+    except mysql.connector.Error as error:
+        logger.error(f"操作失败: {error}")
+        return False
+    finally:
+        if all_user_cursor:
+            all_user_cursor.close()
+        if user_pool_connection:
+            user_pool_connection.close()
+
+def verify_account(number, password):
+    try:
+        from User import User
+        verify_account_pool_connection = mydb.get_connect()
+        verify_account_cursor = verify_account_pool_connection.cursor()
+        verify_account_cursor.execute("SELECT * FROM persons_root_view where number = %s and password = %s", (number, password))
+        result = verify_account_cursor.fetchone()
+        user=User(result[0], result[1], result[2], result[3], result[4], result[5], result[6], result[7])
+        return user
+    except mysql.connector.Error as error:
+        logger.error(f"操作失败: {error}")
+        return False
+    finally:
+        if verify_account_cursor:
+            verify_account_cursor.close()
+        if verify_account_pool_connection:
+            verify_account_pool_connection.close()
+
+def register_account(user):
+    try:
+        register_account_pool_connection = mydb.get_connect()
+        register_account_cursor = register_account_pool_connection.cursor()
+        snowflake_id = snowflake.next_id()
+        register_account_cursor.execute("insert into persons(ID, number, password, name, age, gender, role, grade, position) values(%s,%s,%s,%s,%s,%s,%s,%s,%s)",
+                                        (snowflake_id, user.number, user.password, user.name, user.age, user.gender, user.role, user.grade, user.position))
+        register_account_pool_connection.commit()
+        return True
+    except mysql.connector.Error as error:
+        logger.error(f"操作失败: {error}")
+        return False
+    finally:
+        if register_account_cursor:
+            register_account_cursor.close()
+        if register_account_pool_connection:
+            register_account_pool_connection.close()

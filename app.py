@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from flask import Flask, render_template, request, redirect, url_for, session
-from DatabaseManager import all_person_root, all_person_user
+from DatabaseManagePooling import all_user_root, all_user_user
 from User_Template import User_Template
 from User import User
 from flask_socketio import SocketIO, emit
@@ -11,9 +11,9 @@ from functools import wraps
 from logger_config import get_logger
 
 logger = get_logger(__name__)
-print("2025.06.26")
+print("2025.07.11")
 print("管理系统")
-print("SQL+FLASK+HTML storage version v0.5")
+print("SQL+FLASK+HTML storage version v0.6")
 
 app = Flask(__name__)
 socketio = SocketIO(app,cors_allowed_origins="*")
@@ -74,9 +74,9 @@ def welcome(username):
 def main():
     try:
         if session['role'] == 'root':
-            results_all = all_person_root()
+            results_all = all_user_root()
         else:
-            results_all = all_person_user()
+            results_all = all_user_user()
         current_time = datetime.now()
         runtime = current_time - start_time
         days = runtime.days
@@ -157,7 +157,7 @@ def update_people():
     ]
     person_obj = User(new_values_list[0], new_values_list[1], new_values_list[2], new_values_list[3], new_values_list[4],
                          new_values_list[5], new_values_list[6],new_values_list[7])
-    get_id=original_person_obj.get_person_ID()
+    get_id=original_person_obj.get_user_ID()
     result_update= person_obj.update_SQL(get_id)
     if result_update:
         return redirect(url_for('main'))

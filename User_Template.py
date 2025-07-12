@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from DatabaseManager import person_add, person_delete, person_update, person_find, get_person_id, verify_account, register_account
+from DatabaseManagePooling import user_add, user_delete, user_update, user_find, get_user_id, verify_account, register_account
 
 class User_Template(ABC):
     def __init__(self,number,password,name,age,gender,role, grade, position, ID=None):
@@ -19,23 +19,24 @@ class User_Template(ABC):
         self.role = role
         self.grade = grade
         self.position = position
+
     def save_SQL(self):
-        result_save = person_add(self)
+        result_save = user_add(self)
         return result_save
     def delete_SQL(self):
-        result_delete = person_delete(self)
+        result_delete = user_delete(self)
         return result_delete
 
     def update_SQL(self,get_id):
-        result_update = person_update(self,get_id)
+        result_update = user_update(self,get_id)
         return result_update
 
     @staticmethod
     def find_SQL(field_type, find_value):
-        result_find = person_find(field_type, find_value)
+        result_find = user_find(field_type, find_value)
         return result_find
-    def get_person_ID(self):
-        result_ID = get_person_id(self)
+    def get_user_ID(self):
+        result_ID = get_user_id(self)
         return result_ID
     def get_field_type(self):
         pass
