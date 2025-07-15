@@ -10,6 +10,9 @@ def get_logger(model_name):
     logger = logging.getLogger(model_name)
     logger.setLevel(logging.DEBUG)
 
+    if logger.handlers:
+        logger.handlers.clear()
+
     log_format = '%(asctime)s - %(levelname)s - %(filename)s:%(lineno)d - %(message)s'
     #date_format = '%Y-%m-%d %H:%M:%S'
     # 创建文件处理器

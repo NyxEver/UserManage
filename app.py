@@ -11,9 +11,9 @@ from functools import wraps
 from logger_config import get_logger
 
 logger = get_logger(__name__)
-print("2025.06.26")
+print("2025.07.15")
 print("管理系统")
-print("SQL+FLASK+HTML storage version v0.5")
+print("SQL+FLASK+HTML storage version v0.6")
 
 app = Flask(__name__)
 socketio = SocketIO(app,cors_allowed_origins="*")
