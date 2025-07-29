@@ -1,4 +1,4 @@
-from User_Template import User_Template
+from core.User_Template import User_Template
 
 class User(User_Template):
     def __init__(self,number,password,name,age,gender,role, grade, position, ID=None):

@@ -18,7 +18,7 @@ services:
 
   # Flask应用服务
   web:
-    build: .
+    build: ..
     container_name: peoplemanage_web
     ports:
       - "5000:5000"

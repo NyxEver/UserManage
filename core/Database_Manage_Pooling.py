@@ -1,7 +1,7 @@
 import mysql.connector.pooling
-from Snowflake import Snowflake
 import os
-from logger_config import get_logger
+from core.logger_config import get_logger
+from core.Snowflake import Snowflake
 
 class DatabaseManagePooling:
     def __init__(self):
@@ -175,7 +175,7 @@ def all_user_user():
 
 def verify_account(number, password):
     try:
-        from User import User
+        from core.User import User
         verify_account_pool_connection = mydb.get_connect()
         verify_account_cursor = verify_account_pool_connection.cursor()
         verify_account_cursor.execute("SELECT * FROM persons_root_view where number = %s and password = %s", (number, password))

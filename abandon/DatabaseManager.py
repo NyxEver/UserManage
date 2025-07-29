@@ -1,7 +1,7 @@
 import mysql.connector
-from Snowflake import Snowflake
+from core.Snowflake import Snowflake
 import os
-from logger_config import get_logger
+from core.logger_config import get_logger
 
 snowflake = Snowflake(worker_id=1, data_center_id=1)
 logger = get_logger(__name__)
@@ -147,7 +147,7 @@ def all_person_user():
         return False
 
 def verify_account(number, password):
-    from User import User
+    from core.User import User
     verify_account_cursor = mydb.get_cursor()
     verify_account_cursor.execute("SELECT * FROM persons_root_view where number = %s and password = %s", (number, password))
     result = verify_account_cursor.fetchone()

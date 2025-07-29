@@ -1,4 +1,4 @@
-from User_Template import Person
+from core.User_Template import Person
 
 class Teacher(Person):
     def __init__(self, number, password, name, age, gender, role, position, ID=None):
