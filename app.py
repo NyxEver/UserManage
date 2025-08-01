@@ -21,13 +21,14 @@ start_time = datetime.now()
 keys=secrets.token_hex(16)
 app.secret_key = (keys)
 
-def require_role(require_role):#表示需要的最低权限角色
+def require_role(require_level):#表示需要的最低权限角色
     def decorator(original_function):
         @wraps(original_function)
         def wrapper():
             if 'role' not in session:
                 return render_template('index.html')
-            if session['role'] == require_role:
+            role_current_level=User_Template.role_weight.get(session['role'],0)
+            if role_current_level >= require_level:
                 return original_function()
             else:
                 return render_template('user_error.html')
@@ -73,7 +74,8 @@ def welcome(username):
 @app.route('/main')
 def main():
     try:
-        if session['role'] == 'root':
+        role_current_level = User_Template.role_weight.get(session['role'], 0)
+        if role_current_level>=30:
             results_all = all_user_root()
         else:
             results_all = all_user_user()
@@ -87,10 +89,10 @@ def main():
         return render_template('main.html', results=results_all, runtime=str_runtime)
     except Exception as error:
         logger.error(error)
-
+        return render_template('user_error.html')
 
 @app.route('/add_people', methods=['POST'])
-@require_role('root')
+@require_role(30)
 def add_people():
     number = request.form['number']
     # password = request.form['password']
@@ -111,7 +113,7 @@ def add_people():
 
 
 @app.route('/delete_people', methods=['POST'])
-@require_role('root')
+@require_role(30)
 def delete_people():
     field_type = request.form['field_type']
     del_value = request.form['value_1']
@@ -129,14 +131,14 @@ def delete_people():
         return "未找到 or 删除失败"
 
 @app.route('/update_people', methods=['POST'])
-@require_role('root')
+@require_role(20)
 def update_people():
     field_type = request.form.get('field_type')
     value_find = request.form.get('value_1')
     person_find_data = User_Template.find_SQL(field_type, value_find)
     if not person_find_data:
+        logger.debug(person_find_data)
         return "未找到符合条件的记录"
-        logger.DEBUG(person_find_data)
     list_number = request.form.get('list_number')
     list_number = int(list_number)
     person_data = person_find_data[list_number]
@@ -166,6 +168,7 @@ def update_people():
 
 
 @app.route('/find_people', methods=['POST'])
+@require_role(10)
 def find_people():
     field_type = request.form['field_type']
     value_1 = request.form['value_1']

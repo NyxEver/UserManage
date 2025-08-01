@@ -2,6 +2,13 @@ from abc import ABC
 from core.Database_Manage_Pooling import user_add, user_delete, user_update, user_find, get_user_id, verify_account, register_account
 
 class User_Template(ABC):
+
+    role_weight={#多用户权重
+        'root':30, #全功能权限
+        'admin':20, #改、查权限
+        'user':10 #仅查询权限
+    }
+
     def __init__(self,number,password,name,age,gender,role, grade, position, ID=None):
         if not name and role != 'root':#验证名字是否合法
             raise ValueError("你啥都没输入我咋记住你呢？")
@@ -51,3 +58,8 @@ class User_Template(ABC):
     def verify_user_account(number, password):
         result_verify = verify_account(number, password)
         return result_verify
+
+    def get_role_weight(self):
+        return self.role_weight.get(self.role,0)
+    def has_role_weight(self,require_level):
+        return self.get_role_weight() >= require_level

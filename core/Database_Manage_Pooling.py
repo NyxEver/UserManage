@@ -180,6 +180,8 @@ def verify_account(number, password):
         verify_account_cursor = verify_account_pool_connection.cursor()
         verify_account_cursor.execute("SELECT * FROM persons_root_view where number = %s and password = %s", (number, password))
         result = verify_account_cursor.fetchone()
+        if result is None:
+            return False
         user=User(result[0], result[1], result[2], result[3], result[4], result[5], result[6], result[7])
         return user
     except mysql.connector.Error as error:
